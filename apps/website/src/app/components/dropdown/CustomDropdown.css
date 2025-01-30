@@ -1,0 +1,10 @@
+﻿/* CustomDropdown.css */
+.custom-dropdown .dropdown-trigger {
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+}
+
+.custom-dropdown .dropdown-trigger:hover {
+    color: #1890ff;
+}
