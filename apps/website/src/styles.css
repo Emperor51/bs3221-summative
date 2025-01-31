@@ -3,3 +3,7 @@ html *
 {
     font-family: Arial, serif !important;
 }
+
+body {
+    margin: 0;
+}

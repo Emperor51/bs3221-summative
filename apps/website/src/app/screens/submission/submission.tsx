@@ -43,7 +43,7 @@ export function Submission() {
 
   return (
     <div>
-      <h1>Submit Location</h1>
+      <h2>Submit Location</h2>
       <p>Submit your location to the database.</p>
 
       {item("Location", items, "Location")}
