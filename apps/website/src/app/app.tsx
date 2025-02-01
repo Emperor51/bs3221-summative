@@ -84,7 +84,7 @@ export function App() {
         </Sider>
       ) : (
         // Render top bar with menu button for small screens
-        <Layout.Header style={{ padding: '0 16px', background: '#001529' }}>
+        <Layout.Header style={{ padding: '0 16px', background: '#632054' }}>
           <Button
             type="text"
             icon={<MenuOutlined style={{ color: '#fff', fontSize: '20px' }} />}
@@ -92,10 +92,10 @@ export function App() {
           />
           <h1 style={{ color: '#fff', marginLeft: '16px', display: 'inline' }}>Fire Marshals</h1>
           <Drawer
-            title="Menu"
+            title=" Menu"
             placement="left"
             onClose={onClose}
-            visible={drawerVisible}
+            open={drawerVisible}
             bodyStyle={{ padding: 0 }}
           >
             <Menu
