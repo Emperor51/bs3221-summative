@@ -10,7 +10,7 @@ interface CustomButtonProps extends ButtonProps {
 
 const CustomButton: React.FC<CustomButtonProps> = ({ children, ...rest }) => {
   return (
-    <Button {...rest} className={`custom-button ${rest.className || ''}`}>
+    <Button {...rest} className={`custom-button ${rest.className || ''}`} >
       {children}
     </Button>
   );

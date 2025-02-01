@@ -1,16 +1,4 @@
-﻿/* CustomButton.css */
-.custom-button {
-    /* Add your custom styles here */
+﻿.custom-button {
     border-radius: 8px;
     font-weight: bold;
-}
-
-.custom-button.primary {
-    background-color: #4caf50;
-    border-color: #4caf50;
-}
-
-.custom-button.primary:hover {
-    background-color: #45a049;
-    border-color: #45a049;
 }
