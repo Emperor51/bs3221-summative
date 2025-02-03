@@ -4,44 +4,18 @@ import { MenuItemType } from 'antd/es/menu/interface';
 import { PlusOutlined } from '@ant-design/icons';
 import { Checkbox, Table } from 'antd';
 import React from 'react';
+import { AddSubmissionModal } from '../../components/addSubmissionModal/AddSubmissionModal';
 
 export function Submission() {
 
-  const items: MenuItemType[] = [
-    {
-      key: '1',
-      label: 'Location 1',
-    },
-    {
-      key: '2',
-      label: 'Location 2',
-    },
-    {
-      key: '3',
-      label: 'Location 3',
-    },
-    {
-      key: '4',
-      label: 'Location 4',
-    },
-  ];
-  
-  function item (title: string, items: MenuItemType[], placeholderText: string) {
-    return (
-      <div style={{ flexDirection: 'row', display: 'flex', alignItems: 'center' }}>
-        <p style={{ marginRight: '5px', width: '80px' }}>{title}</p>
-        <CustomDropdown
-          menuItems={items}
-          placeholderText={placeholderText}
-          type={"primary"} // Optional: Specify button type
-          placement={"bottomLeft"} // Optional: Specify placement
-        />
-      </div>
-    );
-  }
+  const [visible, setVisible] = React.useState(false);
 
   function handleSubmission() {
     // Handle submission logic here
+  }
+
+  function toggleVisibilty() {
+    setVisible(!visible);
   }
 
   return (
@@ -50,15 +24,10 @@ export function Submission() {
         <h1>Submissions</h1>
         <CustomButton
           icon={<PlusOutlined />}
-          onClick={handleSubmission}>
+          onClick={toggleVisibilty}>
           New Submission
         </CustomButton>
       </div>
-
-      {item("Location", items, "Location")}
-      {item("Room", items, "Room")}
-
-      <CustomButton style={{ marginTop: '10px', marginBottom: '10px' }} onClick={handleSubmission}>Submit</CustomButton>
 
       <Table dataSource={[]} rowKey="id">
         <Table.Column title=""
@@ -72,6 +41,8 @@ export function Submission() {
         <Table.Column title="Entry Time" dataIndex="entryTime" key="entryTime" />
         <Table.Column title="Exit Time" dataIndex="exitTime" key="exitTime" />
       </Table>
+
+      <AddSubmissionModal visible={visible} setVisible={setVisible} />
     </div>
     );
   }
