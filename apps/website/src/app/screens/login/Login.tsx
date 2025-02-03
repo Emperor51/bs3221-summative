@@ -1,5 +1,5 @@
 ﻿import React, { useState } from 'react';
-import { Form, Input, Button, Card } from 'antd';
+import { Form, Input, Button, Card, Image } from 'antd';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 
@@ -27,7 +27,7 @@ const Login: React.FC = () => {
         height: '100vh',
         alignItems: 'center',
         justifyContent: 'center',
-        background: '#f0f2f5'
+        background: '#257478'
       }}
     >
       <Card title="Please sign in" style={{ width: 300 }}>
@@ -51,7 +51,7 @@ const Login: React.FC = () => {
           </Form.Item>
         </Form>
         <div style={{ textAlign: 'center' }}>
-          <Button type="link">Sign in with Office 365</Button>
+          <Image src={'https://learn.microsoft.com/en-us/entra/identity-platform/media/howto-add-branding-in-apps/ms-symbollockup_signin_light.svg'} preview={false} />
         </div>
       </Card>
     </div>
