@@ -23,7 +23,8 @@ root.render(
         theme={{
           token: {
             colorPrimary: '#632054',
-            colorBgContainer: '#f7c111'
+            colorHighlight: '#f7c111',
+            colorBgContainer: '#fff'
           },
           components: {
             Menu: {
