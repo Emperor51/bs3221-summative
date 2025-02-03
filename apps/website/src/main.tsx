@@ -21,12 +21,16 @@ root.render(
       </header>
       <ConfigProvider
         theme={{
+          // https://ant.design/docs/react/migrate-less-variables
           token: {
             colorPrimary: '#632054',
             colorHighlight: '#f7c111',
-            colorBgContainer: '#fff'
+            colorBgContainer: '#fff',
           },
           components: {
+            Button: {
+              colorError: '#e3171e', // Button danger color
+            },
             Menu: {
               colorItemBgSelected: '#632054', // Active menu item background
               colorItemTextSelected: '#ffffff'  // Active menu item text
