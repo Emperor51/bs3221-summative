@@ -29,7 +29,7 @@ export const AddSubmissionModal = (props: typeof AddSubmissionModalProps) => {
     );
   }
 
-  const items: MenuItemType[] = [
+  const locations: MenuItemType[] = [
     {
       key: '1',
       label: 'Location 1',
@@ -48,17 +48,37 @@ export const AddSubmissionModal = (props: typeof AddSubmissionModalProps) => {
     },
   ];
 
+  const rooms: MenuItemType[] = [
+    {
+      key: '1',
+      label: 'Room 1',
+    },
+    {
+      key: '2',
+      label: 'Room 2',
+    },
+    {
+      key: '3',
+      label: 'Room 3',
+    },
+    {
+      key: '4',
+      label: 'Room 4',
+    },
+  ];
+
+
 
 
   return (
     <Modal
-      title="Add Submission"
+      title="Report Marshal Location"
       open={props.visible}
       onCancel={() => props.setVisible(false)}
       onOk={handleSubmission}
     >
-      {item("Location", items, "Location")}
-      {item("Room", items, "Room")}
+      {item("Location", locations, "Location")}
+      {item("Room", rooms, "Room")}
     </Modal>
   );
 }

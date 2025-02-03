@@ -1,13 +1,14 @@
 ﻿// src/layouts/LayoutWithMenu.tsx
 import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Layout, Menu, Drawer, Grid } from 'antd';
+import { Layout, Menu, Drawer, Grid, Image } from 'antd';
 import Sider from 'antd/es/layout/Sider';
 import { MenuOutlined, LogoutOutlined } from '@ant-design/icons';
 import { useAuth } from '../contexts/AuthContext';
 import protectedRoutes, { ProtectedRouteConfig } from '../config/protectedRoutes';
 import roleHierarchy from '../constants/roleHierarchy';
 import CustomButton from '../components/button/CustomButton';
+import crest from '../../assets/logo.png';
 
 const { Content } = Layout;
 const { useBreakpoint } = Grid;
@@ -80,6 +81,11 @@ const LayoutWithMenu: React.FC<LayoutWithMenuProps> = ({ children }) => {
           <div
             style={{ display: 'flex', flexDirection: 'column', height: '100%' }}
           >
+            <Image
+              src={crest}
+              preview={false}
+              style={{width: '90%', height: 'auto', margin: '10px auto', marginLeft: '5%'}}
+              />
             <Menu
               theme="dark"
               selectedKeys={[selectedKey]}
