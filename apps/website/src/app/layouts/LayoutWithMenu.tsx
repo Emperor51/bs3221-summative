@@ -8,7 +8,8 @@ import { useAuth } from '../contexts/AuthContext';
 import protectedRoutes, { ProtectedRouteConfig } from '../config/protectedRoutes';
 import roleHierarchy from '../constants/roleHierarchy';
 import CustomButton from '../components/button/CustomButton';
-import crest from '../../assets/logo.png';
+import logo from '../../assets/logo.png';
+import crest from '../../assets/crest.png';
 
 const { Content } = Layout;
 const { useBreakpoint } = Grid;
@@ -82,7 +83,7 @@ const LayoutWithMenu: React.FC<LayoutWithMenuProps> = ({ children }) => {
             style={{ display: 'flex', flexDirection: 'column', height: '100%' }}
           >
             <Image
-              src={crest}
+              src={collapsed ? crest : logo}
               preview={false}
               style={{width: '90%', height: 'auto', margin: '10px auto', marginLeft: '5%'}}
               />
