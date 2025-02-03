@@ -10,7 +10,7 @@ export interface ProtectedRouteConfig {
   key: string;
   path: string;
   element: React.ReactNode;
-  allowedRoles: string[];
+  minRole: 'user' | 'auditor' | 'admin';
   menu?: {
     label: string;
     icon: React.ReactNode;
@@ -22,28 +22,28 @@ const protectedRoutes: ProtectedRouteConfig[] = [
     key: '1',
     path: '',
     element: <Home />,
-    allowedRoles: ['admin', 'user'],
+    minRole: 'user',
     menu: { label: 'Home', icon: <HomeOutlined /> },
   },
   {
     key: '2',
     path: 'submit',
     element: <Submission />,
-    allowedRoles: ['admin', 'user'],
+    minRole: 'user',
     menu: { label: 'Submission', icon: <FormOutlined /> },
   },
   {
     key: '3',
     path: 'audit',
     element: <Audit />,
-    allowedRoles: ['admin'],
+    minRole: 'auditor',
     menu: { label: 'Audit', icon: <AuditOutlined /> },
   },
   {
     key: '4',
     path: 'user-setup',
     element: <UserSetup />,
-    allowedRoles: ['admin'],
+    minRole: 'admin',
     menu: { label: 'User Setup', icon: <UserOutlined /> },
   },
 ];

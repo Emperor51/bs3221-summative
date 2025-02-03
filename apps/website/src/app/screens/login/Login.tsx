@@ -13,7 +13,7 @@ const Login: React.FC = () => {
     // Simulate authentication process
     setTimeout(() => {
       // For demonstration purposes, assign role based on username
-      const role = values.username === 'admin' ? 'admin' : 'user';
+      const role = values.username === 'admin' ? 'admin' : values.username === 'auditor' ? 'auditor' : 'user';
       signIn({ name: values.username, role });
       setLoading(false);
       navigate('/');

@@ -6,6 +6,7 @@ import Sider from 'antd/es/layout/Sider';
 import { MenuOutlined, LogoutOutlined } from '@ant-design/icons';
 import { useAuth } from '../contexts/AuthContext';
 import protectedRoutes, { ProtectedRouteConfig } from '../config/protectedRoutes';
+import roleHierarchy from '../constants/roleHierarchy';
 
 const { Content } = Layout;
 const { useBreakpoint } = Grid;
@@ -25,7 +26,7 @@ const LayoutWithMenu: React.FC<LayoutWithMenuProps> = ({ children }) => {
   // Generate menu items from the route configuration, filtering by allowed roles.
   const menuItems = protectedRoutes
     .filter((route: ProtectedRouteConfig) =>
-      route.menu && route.allowedRoles.includes(user?.role as string)
+      route.menu && roleHierarchy[user?.role || 'user'] >= roleHierarchy[route.minRole]
     )
     .map((route: ProtectedRouteConfig) => ({
       key: route.key,

@@ -15,17 +15,19 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/unauthorised" element={<Unauthorised />} />
 
+        {/* Load Protected Routes */}
         {protectedRoutes.map((route) => (
           <Route
             key={route.key}
             path={route.path}
             element={
-              <ProtectedRoute allowedRoles={route.allowedRoles}>
+              <ProtectedRoute minRole={route.minRole}>
                 <LayoutWithMenu>{route.element}</LayoutWithMenu>
               </ProtectedRoute>
             }
           />
         ))}
+
         <Route path="*" element={<NotFound />} />
       </Routes>
     </AuthProvider>
