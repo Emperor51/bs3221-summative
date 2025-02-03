@@ -31,7 +31,7 @@ const Unauthorised: React.FC = () => {
   return (
     <div>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
-        <h2>User Setup</h2>
+        <h1>User Setup</h1>
         <CustomButton icon={<UserAddOutlined />}>Add User</CustomButton>
       </div>
       <Table dataSource={users} rowKey="id">
