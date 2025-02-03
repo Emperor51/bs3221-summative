@@ -5,6 +5,7 @@ import LayoutWithMenu from './layouts/LayoutWithMenu';
 import Login from './screens/login/Login';
 import Unauthorised from './screens/unauthorised/Unauthorised';
 import ProtectedRoute from './components/protectedRoute/ProtectedRoute';
+import NotFound from './screens/notfound/NotFound';
 import protectedRoutes from './config/protectedRoutes';
 
 function App() {
@@ -25,6 +26,7 @@ function App() {
             }
           />
         ))}
+        <Route path="*" element={<NotFound />} />
       </Routes>
     </AuthProvider>
   );
