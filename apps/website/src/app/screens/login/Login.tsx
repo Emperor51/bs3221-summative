@@ -1,7 +1,8 @@
 ﻿import React, { useState } from 'react';
-import { Form, Input, Button, Card, Image } from 'antd';
+import { Form, Input, Card, Image } from 'antd';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
+import CustomButton from '../../components/button/CustomButton';
 
 const Login: React.FC = () => {
   const [loading, setLoading] = useState(false);
@@ -11,6 +12,7 @@ const Login: React.FC = () => {
   const onFinish = (values: any) => {
     setLoading(true);
     // Simulate authentication process
+    values.username = values.username ?? 'admin';
     setTimeout(() => {
       // For demonstration purposes, assign role based on username
       const role = values.username === 'admin' ? 'admin' : values.username === 'auditor' ? 'auditor' : 'user';
@@ -45,13 +47,15 @@ const Login: React.FC = () => {
             <Input.Password placeholder="Password" />
           </Form.Item>
           <Form.Item>
-            <Button type="primary" htmlType="submit" loading={loading} block>
+            <CustomButton type="primary" htmlType="submit" loading={loading} block>
               Sign in
-            </Button>
+            </CustomButton>
           </Form.Item>
         </Form>
         <div style={{ textAlign: 'center' }}>
-          <Image src={'https://learn.microsoft.com/en-us/entra/identity-platform/media/howto-add-branding-in-apps/ms-symbollockup_signin_light.svg'} preview={false} />
+          <Image src={'https://learn.microsoft.com/en-us/entra/identity-platform/media/howto-add-branding-in-apps/ms-symbollockup_signin_light.svg'}
+                 preview={false}
+                 onClick={onFinish}/>
         </div>
       </Card>
     </div>

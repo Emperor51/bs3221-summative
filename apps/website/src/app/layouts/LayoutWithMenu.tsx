@@ -1,12 +1,13 @@
 ﻿// src/layouts/LayoutWithMenu.tsx
 import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Layout, Menu, Drawer, Button, Grid } from 'antd';
+import { Layout, Menu, Drawer, Grid } from 'antd';
 import Sider from 'antd/es/layout/Sider';
 import { MenuOutlined, LogoutOutlined } from '@ant-design/icons';
 import { useAuth } from '../contexts/AuthContext';
 import protectedRoutes, { ProtectedRouteConfig } from '../config/protectedRoutes';
 import roleHierarchy from '../constants/roleHierarchy';
+import CustomButton from '../components/button/CustomButton';
 
 const { Content } = Layout;
 const { useBreakpoint } = Grid;
@@ -88,7 +89,7 @@ const LayoutWithMenu: React.FC<LayoutWithMenuProps> = ({ children }) => {
               style={{ marginTop: '10px', flex: 1 }}
             />
             <div style={{ padding: '10px' }}>
-              <Button
+              <CustomButton
                 type="primary"
                 danger
                 icon={<LogoutOutlined />}
@@ -96,7 +97,7 @@ const LayoutWithMenu: React.FC<LayoutWithMenuProps> = ({ children }) => {
                 block
               >
                 {collapsed ? '' : 'Logout'}
-              </Button>
+              </CustomButton>
             </div>
           </div>
         </Sider>
@@ -112,7 +113,7 @@ const LayoutWithMenu: React.FC<LayoutWithMenuProps> = ({ children }) => {
           }}
         >
           <div style={{ display: 'flex', alignItems: 'center' }}>
-            <Button
+            <CustomButton
               type="text"
               icon={
                 <MenuOutlined style={{ color: '#fff', fontSize: '20px' }} />
@@ -125,14 +126,14 @@ const LayoutWithMenu: React.FC<LayoutWithMenuProps> = ({ children }) => {
               Fire Marshals
             </h1>
           </div>
-          <Button
+          <CustomButton
             type="primary"
             danger
             icon={<LogoutOutlined />}
             onClick={handleLogout}
           >
             Logout
-          </Button>
+          </CustomButton>
           <Drawer
             title="Menu"
             placement="left"
