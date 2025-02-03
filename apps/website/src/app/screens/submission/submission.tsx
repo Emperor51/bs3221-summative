@@ -1,6 +1,9 @@
 ﻿import CustomButton from '../../components/button/CustomButton';
 import CustomDropdown from '../../components/dropdown/CustomDropdown';
 import { MenuItemType } from 'antd/es/menu/interface';
+import { PlusOutlined } from '@ant-design/icons';
+import { Checkbox, Table } from 'antd';
+import React from 'react';
 
 export function Submission() {
 
@@ -43,15 +46,34 @@ export function Submission() {
 
   return (
     <div>
-      <h2>Submit Location</h2>
-      <p>Submit your location to the database.</p>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
+        <h1>Submissions</h1>
+        <CustomButton
+          icon={<PlusOutlined />}
+          onClick={handleSubmission}>
+          New Submission
+        </CustomButton>
+      </div>
 
       {item("Location", items, "Location")}
       {item("Room", items, "Room")}
 
-      <CustomButton style={{marginTop: '10px'}} onClick={handleSubmission}>Submit</CustomButton>
-    </div>
-  );
-}
+      <CustomButton style={{ marginTop: '10px', marginBottom: '10px' }} onClick={handleSubmission}>Submit</CustomButton>
 
-export default Submission;
+      <Table dataSource={[]} rowKey="id">
+        <Table.Column title=""
+          render={(selected: boolean, record: any) => (
+          <Checkbox
+            checked={selected}
+          />
+        )}/>
+        <Table.Column title="Building" dataIndex="building" key="building" />
+        <Table.Column title="Room" dataIndex="room" key="room" />
+        <Table.Column title="Entry Time" dataIndex="entryTime" key="entryTime" />
+        <Table.Column title="Exit Time" dataIndex="exitTime" key="exitTime" />
+      </Table>
+    </div>
+    );
+  }
+
+  export default Submission;
