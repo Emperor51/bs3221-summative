@@ -3,8 +3,9 @@ import React from 'react';
 import Home from '../screens/home/home';
 import Audit from '../screens/audit/audit';
 import Submission from '../screens/submission/submission';
-import { HomeOutlined, AuditOutlined, FormOutlined, UserOutlined } from '@ant-design/icons';
+import { HomeOutlined, AuditOutlined, FormOutlined, UserOutlined, SettingOutlined } from '@ant-design/icons';
 import UserSetup from '../screens/usersetup/UserSetup';
+import Settings from '../screens/settings/Settings';
 
 export interface ProtectedRouteConfig {
   key: string;
@@ -45,6 +46,13 @@ const protectedRoutes: ProtectedRouteConfig[] = [
     element: <UserSetup />,
     minRole: 'admin',
     menu: { label: 'User Setup', icon: <UserOutlined /> },
+  },
+  {
+    key: '5',
+    path: 'settings',
+    element: <Settings />,
+    minRole: 'admin',
+    menu: { label: 'Settings', icon: <SettingOutlined /> },
   },
 ];
 
