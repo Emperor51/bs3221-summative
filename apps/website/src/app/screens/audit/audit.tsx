@@ -2,6 +2,12 @@
 import React from 'react';
 
 export function Audit () {
+
+  /** TODO - Audit Page
+   * 1. Add alerts for buildings that do not meet minimum fire marshal requirements
+   * 2. Add warnings for buildings that do not meet recommended fire marshal requirements
+   */
+
   return (
     <div>
       <h1>Audit</h1>

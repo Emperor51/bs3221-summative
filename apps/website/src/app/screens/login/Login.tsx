@@ -9,6 +9,12 @@ const Login: React.FC = () => {
   const navigate = useNavigate();
   const { signIn } = useAuth();
 
+  /** TODO - Login Page
+   * 1. Add authentication
+   * 2. Add winchester branding
+   * 3. Link to Office 365?
+   */
+
   const onFinish = (values: any) => {
     setLoading(true);
     // Simulate authentication process
