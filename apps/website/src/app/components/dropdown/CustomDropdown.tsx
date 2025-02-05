@@ -1,20 +1,18 @@
-﻿// CustomDropdown.tsx
-import React, { useState } from 'react';
-import { Dropdown, MenuProps, Button } from 'antd';
+﻿import React from 'react';
+import { Dropdown, MenuProps } from 'antd';
 import { DownOutlined } from '@ant-design/icons';
 import './CustomDropdown.css';
 import CustomButton from '../button/CustomButton';
-import { MenuItemType } from 'antd/es/menu/interface'; // Ensure this path is correct
-
+import { MenuItemType } from 'antd/es/menu/interface';
 
 interface CustomDropdownProps {
-  menuItems: MenuItemType[]; // Ensure menuItems is an array of MenuItemType
+  menuItems: MenuItemType[];
   placeholderText: string;
   placement?: 'topLeft' | 'topCenter' | 'topRight' | 'bottomLeft' | 'bottomCenter' | 'bottomRight';
   disabled?: boolean;
   type?: 'primary' | 'dashed' | 'link' | 'text' | 'default';
-  onSelect?: (key: string, label: React.ReactNode) => void;
-  // You can add more props as needed
+  value?: string;  // ✅ Make it a controlled component
+  onChange?: (value: string) => void;  // ✅ Ensure it updates Form state
 }
 
 const CustomDropdown: React.FC<CustomDropdownProps> = ({
@@ -23,22 +21,16 @@ const CustomDropdown: React.FC<CustomDropdownProps> = ({
                                                          placement = 'bottomLeft',
                                                          disabled = false,
                                                          type = 'primary',
-                                                         onSelect,
+                                                         value,
+                                                         onChange,
                                                        }) => {
-  const [selectedText, setSelectedText] = useState<string>(placeholderText);
-
-  // Type guard to ensure item is MenuItemType
-  const isMenuItem = (item: MenuItemType | undefined): item is MenuItemType => {
-    return item !== undefined && 'label' in item && typeof item.label === 'string';
-  };
+  // Ensure we find the selected item label
+  const selectedItem = menuItems.find(item => item.key === value);
+  const selectedText = selectedItem?.label?.toString() || placeholderText;
 
   const handleMenuClick: MenuProps['onClick'] = (info) => {
-    const selectedItem = menuItems.find(item => item.key === info.key);
-    if (isMenuItem(selectedItem)) {
-      setSelectedText(selectedItem.label as string ?? placeholderText);
-      if (onSelect) {
-        onSelect(info.key as string, selectedItem.label);
-      }
+    if (onChange) {
+      onChange(info.key);
     }
   };
 
