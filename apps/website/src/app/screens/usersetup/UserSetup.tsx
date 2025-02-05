@@ -2,6 +2,7 @@
 import { Table, Checkbox } from 'antd';
 import CustomButton from '../../components/button/CustomButton';
 import { UserAddOutlined } from '@ant-design/icons';
+import { AddUserModal } from '../../components/addUserModal/AddUserModal';
 
 const Unauthorised: React.FC = () => {
 
@@ -14,6 +15,7 @@ const Unauthorised: React.FC = () => {
   ];
 
   const [users, setUsers] = useState(initialUserData);
+  const [visible, setVisible] = useState(false);
 
   // This function simulates an API call to toggle the active flag.
   const toggleActive = (record: any, checked: boolean) => {
@@ -28,11 +30,15 @@ const Unauthorised: React.FC = () => {
     }, 0);
   };
 
+  function toggleModal() {
+    setVisible(!visible);
+  }
+
   return (
     <div>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
         <h1>User Setup</h1>
-        <CustomButton icon={<UserAddOutlined />}>Add User</CustomButton>
+        <CustomButton icon={<UserAddOutlined />} onClick={toggleModal}>Add User</CustomButton>
       </div>
       <Table dataSource={users} rowKey="id">
         <Table.Column title="ID" dataIndex="id" key="id" />
@@ -55,6 +61,8 @@ const Unauthorised: React.FC = () => {
           )}
         />
       </Table>
+
+      <AddUserModal visible={visible} setVisible={setVisible} />
     </div>
   );
 };
