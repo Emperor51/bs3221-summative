@@ -40,11 +40,17 @@ const CustomDropdown: React.FC<CustomDropdownProps> = ({
   };
 
   return (
-    <Dropdown menu={menu} placement={placement} disabled={disabled} trigger={['click']}>
+    <Dropdown
+      menu={menu}
+      placement={placement}
+      disabled={disabled}
+      trigger={['click']}
+    >
       <CustomButton type={type} className="custom-dropdown-button">
         {selectedText} <DownOutlined />
       </CustomButton>
     </Dropdown>
+
   );
 };
 

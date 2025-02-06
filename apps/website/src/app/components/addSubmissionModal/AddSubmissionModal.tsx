@@ -1,8 +1,9 @@
-import { Modal, Form, message } from 'antd';
+import { Modal, Form, message, Select } from 'antd';
 import { MenuItemType } from 'antd/es/menu/interface';
 import CustomDropdown from '../dropdown/CustomDropdown';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import CustomButton from '../button/CustomButton';
+import axios from 'axios';
 
 interface AddSubmissionModalProps {
   visible: boolean;
@@ -12,22 +13,47 @@ interface AddSubmissionModalProps {
 export const AddSubmissionModal: React.FC<AddSubmissionModalProps> = ({ visible, setVisible }) => {
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
+  const [rooms, setRooms] = useState<MenuItemType[]>([]);
+  const [locations, setLocations] = useState<MenuItemType[]>([]);
 
-  const locations: MenuItemType[] = [
-    { key: '1', label: 'Location 1' },
-    { key: '2', label: 'Location 2' },
-    { key: '3', label: 'Location 3' },
-    { key: '4', label: 'Location 4' },
-  ];
+  // Function to fetch rooms and cache them for 1 hour
+  const getLocations = async () => {
+    const cacheKey = 'rooms_cache';
+    const cachedData = localStorage.getItem(cacheKey);
+    const now = Date.now();
 
-  const rooms: MenuItemType[] = [
-    { key: '1', label: 'Room 1' },
-    { key: '2', label: 'Room 2' },
-    { key: '3', label: 'Room 3' },
-    { key: '4', label: 'Room 4' },
-  ];
+    if (cachedData) {
+      const { timestamp, data } = JSON.parse(cachedData);
+      if (now - timestamp < 3600 * 1000) { // ✅ Ensure cache is not expired
+        setLocations(data);
+        return;
+      }
+    }
 
-  const handleSubmission = async (values: { location: string; room: string }) => {
+    try {
+      const response = await axios.get('http://localhost:3169/api/rooms');
+      const fetchedLocations = response.data.map((location: string, index: number) => ({
+        value: location, // ✅ Use the actual location as value
+        label: location, // ✅ Ensure label matches expected format
+      }));
+
+      setLocations(fetchedLocations);
+      localStorage.setItem(cacheKey, JSON.stringify({ timestamp: now, data: fetchedLocations }));
+    } catch (error) {
+      console.error('Error fetching locations:', error);
+      message.error('Failed to load locations');
+    }
+  };
+
+
+  // Fetch locations when the modal becomes visible
+  useEffect(() => {
+    if (visible) {
+      getLocations();
+    }
+  }, [visible]);
+
+  const handleSubmission = async (values: { key: string; location: string }) => {
     setLoading(true);
     try {
       // Simulate API call
@@ -62,14 +88,27 @@ export const AddSubmissionModal: React.FC<AddSubmissionModalProps> = ({ visible,
         </CustomButton>,
       ]}
     >
-      <Form form={form} name="addSubmission" onFinish={handleSubmission} layout="vertical" style={{ marginTop: '20px'}}>
-        <Form.Item name="location" rules={[{ required: true, message: 'Please select a location!' }]}>
-          <CustomDropdown menuItems={locations} placeholderText="Select Location" />
+      <Form form={form} name="addSubmission" onFinish={handleSubmission} layout="vertical" style={{ marginTop: '20px' }}>
+        <Form.Item
+          name="location"
+          rules={[{ required: true, message: 'Please select a location!' }]}
+        >
+          <Select
+            showSearch
+            placeholder="Select Location"
+            options={locations} // ✅ Pass the options array directly
+            filterOption={(input, option) =>
+              (option?.label as string ?? '').toLowerCase().includes(input.toLowerCase())
+            }
+          />
         </Form.Item>
 
-        <Form.Item name="room" rules={[{ required: false, message: 'Please select a room!' }]}>
-          <CustomDropdown menuItems={rooms} placeholderText="Select Room" />
-        </Form.Item>
+
+
+
+        {/*<Form.Item name="room" rules={[{ required: false, message: 'Please select a room!' }]}>*/}
+        {/*  <CustomDropdown menuItems={rooms} placeholderText="Select Room" />*/}
+        {/*</Form.Item>*/}
       </Form>
     </Modal>
   );

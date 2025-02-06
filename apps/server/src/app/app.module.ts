@@ -6,12 +6,12 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 @Module({
   imports: [
     TypeOrmModule.forRoot({
-      type: 'mssql',
+      type: 'mysql',
       host: 'localhost',
-      port: 1433,
-      username: 'sa',
-      password: 'yourStrong(!)Password',
-      database: 'test',
+      port: 3170,
+      username: 'user',
+      password: 'password',
+      database: 'fmdb',
       entities: [],
       synchronize: true,
     })

@@ -87,4 +87,9 @@ export class AppController {
     return this.appService.deleteUser(id);
   }
 
+  @Get('rooms')
+  getRooms() {
+    return this.appService.getRooms();
+  }
+
 }

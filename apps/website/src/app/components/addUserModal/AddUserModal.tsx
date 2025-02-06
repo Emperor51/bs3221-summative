@@ -1,4 +1,4 @@
-import { Form, Input, Modal, message } from 'antd';
+import { Form, Input, Modal, message, Select } from 'antd';
 import { MenuItemType } from 'antd/es/menu/interface';
 import CustomDropdown from '../dropdown/CustomDropdown';
 import React, { useState } from 'react';
@@ -15,8 +15,8 @@ export const AddUserModal: React.FC<AddUserModalProps> = ({ visible, setVisible 
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
 
-  const roles: MenuItemType[] = Object.entries(roleHierarchy).map(([role, value]) => ({
-    key: value.toString(),
+  const roles: { value: string, label: string }[] = Object.entries(roleHierarchy).map(([role, value]) => ({
+    value: value.toString(),
     label: role,
   }));
 
@@ -65,16 +65,26 @@ export const AddUserModal: React.FC<AddUserModalProps> = ({ visible, setVisible 
         >
           <Input placeholder="Email Address" addonAfter="@winchester.ac.uk" allowClear />
         </Form.Item>
+        <Form.Item
+          name="firstname"
+          rules={[{ required: true, message: 'Please input the user\'s first name!' }]}
+        >
+          <Input placeholder="First Name" allowClear />
+        </Form.Item>
+        <Form.Item
+          name="lastname"
+          rules={[{ required: true, message: 'Please input the user\'s last name!' }]}
+        >
+          <Input placeholder="Last Name" allowClear />
+        </Form.Item>
 
         <Form.Item
           name="role"
           rules={[{ required: true, message: "Please select the user's role!" }]}
         >
-          <CustomDropdown
-            menuItems={roles}
-            placeholderText="Select Role"
-            type={"dashed"}
-            onChange={(value) => form.setFieldValue('role', value)} // ✅ Ensure form state updates
+          <Select
+            placeholder="Select Role"
+            options={roles} // ✅ Pass the options array directly
           />
         </Form.Item>
       </Form>
