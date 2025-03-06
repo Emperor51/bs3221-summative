@@ -9,7 +9,10 @@ export class Log {
   userId: string;
 
   @Column()
-  date: Date;
+  entryTime: Date;
+
+  @Column()
+  exitTime: Date;
 
   @Column()
   location: string;

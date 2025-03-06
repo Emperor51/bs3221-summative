@@ -31,7 +31,7 @@ export const AddSubmissionModal: React.FC<AddSubmissionModalProps> = ({ visible,
     }
 
     try {
-      const response = await axios.get('http://localhost:3169/api/rooms');
+      const response = await axios.get('http://localhost:80/api/rooms');
       const fetchedLocations = response.data.map((location: string, index: number) => ({
         value: location, // ✅ Use the actual location as value
         label: location, // ✅ Ensure label matches expected format
