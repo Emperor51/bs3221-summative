@@ -9,7 +9,7 @@ services:
       APP_NAME: server
       NX_DAEMON: true
     ports:
-      - '80:80'
+      - '3221:80'
     volumes:
       - ./apps:/usr/src/app/apps
 

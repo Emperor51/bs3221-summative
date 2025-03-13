@@ -7,6 +7,8 @@ import { UserController } from './controllers/user.controller';
 import { UserService } from './services/user.service';
 import { User } from './entities/user.entity';
 import { Role } from './entities/role.entity';
+import { RoleService } from './services/role.service';
+import { RoleController } from './controllers/role.controller';
 
 @Module({
   imports: [
@@ -23,7 +25,7 @@ import { Role } from './entities/role.entity';
 
     TypeOrmModule.forFeature([Log, User, Role]),
   ],
-  controllers: [SubmissionController, UserController],
-  providers: [SubmissionService, UserService],
+  controllers: [SubmissionController, UserController, RoleController],
+  providers: [SubmissionService, UserService, RoleService],
 })
 export class AppModule {}

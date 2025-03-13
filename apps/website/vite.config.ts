@@ -10,6 +10,7 @@ export default defineConfig({
   server: {
     port: 4200,
     host: '0.0.0.0',
+    allowedHosts: ['docker.mysoft.local']
   },
   preview: {
     port: 4300,
