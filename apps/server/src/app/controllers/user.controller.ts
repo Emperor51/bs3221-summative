@@ -1,6 +1,4 @@
-import { Headers, Body, Controller, Get, Post, Param, Query, Patch, Delete } from '@nestjs/common';
-import { SubmissionReq } from '../dtos/SubmissionReq.dto';
-import { SubmissionService } from '../services/submission.service';
+import { Body, Controller, Get, Post, Param, Patch, Delete } from '@nestjs/common';
 import { UserService } from '../services/user.service';
 import { User } from '../entities/user.entity';
 
