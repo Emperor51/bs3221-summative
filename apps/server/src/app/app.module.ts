@@ -1,10 +1,12 @@
 import { Module } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Log } from './entities/log.entity';
 import { SubmissionController } from './controllers/submission.controller';
 import { SubmissionService } from './services/submission.service';
+import { UserController } from './controllers/user.controller';
+import { UserService } from './services/user.service';
+import { User } from './entities/user.entity';
+import { Role } from './entities/role.entity';
 
 @Module({
   imports: [
@@ -15,11 +17,13 @@ import { SubmissionService } from './services/submission.service';
       username: 'user',
       password: 'password',
       database: 'fmdb',
-      entities: [Log],
+      entities: [Log, User, Role],
       synchronize: true,
-    })
+    }),
+
+    TypeOrmModule.forFeature([Log, User, Role]),
   ],
-  controllers: [SubmissionController],
-  providers: [SubmissionService],
+  controllers: [SubmissionController, UserController],
+  providers: [SubmissionService, UserService],
 })
 export class AppModule {}

@@ -2,11 +2,12 @@
 
 @Entity()
 export class Log {
+
   @PrimaryGeneratedColumn()
   id: number;
 
   @Column()
-  userId: string;
+  userId: number;
 
   @Column()
   entryTime: Date;

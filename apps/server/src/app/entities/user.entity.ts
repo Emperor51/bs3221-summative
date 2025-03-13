@@ -1,12 +1,13 @@
-﻿import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
+﻿import { Entity, Column, PrimaryColumn, ManyToOne, JoinColumn } from 'typeorm';
+import { Role } from './role.entity';
 
 @Entity()
 export class User {
-  @PrimaryGeneratedColumn()
+  @PrimaryColumn()
   id: number;
 
   @Column()
-  username: string;
+  email: string;
 
   @Column()
   firstName: string;
@@ -14,4 +15,13 @@ export class User {
   @Column()
   lastName: string;
 
+  @Column()
+  active: boolean;
+
+  @Column()
+  password: string;
+
+  @ManyToOne(() => Role, { eager: true })
+  @JoinColumn({ name: 'roleId' })
+  role: Role;
 }

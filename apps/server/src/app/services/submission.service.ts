@@ -3,17 +3,25 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Log } from '../entities/log.entity'; // Ensure correct path to entity
 import { SubmissionReq } from '../dtos/SubmissionReq.dto';
+import { User } from '../entities/user.entity';
 
 @Injectable()
 export class SubmissionService {
   constructor(
     @InjectRepository(Log)
     private readonly logRepository: Repository<Log>,
+
+    @InjectRepository(User)
+    private readonly userRepository: Repository<User>,
   ) {}
 
-  async getSubmissions(entryTime: string, exitTime: string) {
+  async getSubmissions(email: string, entryTime: string, exitTime: string) {
+    const user: User = await this.userRepository.findOne({
+      where: { email },
+    })
     return this.logRepository.find({
       where: {
+        userId: user.id,
         entryTime: new Date(entryTime),
         exitTime: new Date(exitTime),
       },
