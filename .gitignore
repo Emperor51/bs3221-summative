@@ -6,3 +6,4 @@ vitest.config.*.timestamp*
 node_modules/
 **/.env
 fmdb
+dist

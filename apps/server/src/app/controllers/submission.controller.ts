@@ -13,18 +13,19 @@ export class SubmissionController {
    * @param exitTime
    */
   @Get()
-  getSubmissions(@Headers('x-email') email: string, @Param('entryTime') entryTime: string, @Query('exitTime') exitTime: string) {
-    return this.submissionService.getSubmissions(email, entryTime, exitTime);
+  getSubmissions(@Headers('x-user-id') userId: number, @Query('entryTime') entryTime: string, @Query('exitTime') exitTime: string) {
+    // console.log(entryTime, exitTime)
+    return this.submissionService.getSubmissions(userId, entryTime, exitTime);
   }
 
   /**
    * returns a submission by id
    * @param id
    */
-  // @Get('/:id')
-  // getSubmission(@Query('id') id: string) {
-  //   return this.submissionService.getSubmission(id)
-  // }
+   @Get('/:id')
+   getSubmission(@Param('id') id: number) {
+     return this.submissionService.getSubmission(id)
+   }
 
   /**
    * @returns submissions for all users
@@ -48,8 +49,8 @@ export class SubmissionController {
    * @param submission
    */
   @Post()
-  createSubmission(@Body() submission: SubmissionReq) {
-    return this.submissionService.createSubmission(submission);
+  createSubmission(@Headers('x-user-id') userId: number, @Body() submission: SubmissionReq) {
+    return this.submissionService.createSubmission(userId, submission);
   }
   
   // @Delete('/:id')

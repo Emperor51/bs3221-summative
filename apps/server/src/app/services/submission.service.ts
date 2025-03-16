@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, MoreThanOrEqual, LessThanOrEqual } from 'typeorm';
 import { Log } from '../entities/log.entity'; // Ensure correct path to entity
 import { SubmissionReq } from '../dtos/SubmissionReq.dto';
 import { User } from '../entities/user.entity';
@@ -15,22 +15,23 @@ export class SubmissionService {
     private readonly userRepository: Repository<User>,
   ) {}
 
-  async getSubmissions(email: string, entryTime: string, exitTime: string) {
+  async getSubmissions(userId: number, entryTime: string, exitTime: string) {
     const user: User = await this.userRepository.findOne({
-      where: { email },
+      where: { id: userId },
     })
+    console.log(entryTime)
     return this.logRepository.find({
       where: {
         userId: user.id,
-        entryTime: new Date(entryTime),
-        exitTime: new Date(exitTime),
+        entryTime: LessThanOrEqual(new Date(exitTime)),
+        exitTime: MoreThanOrEqual(new Date(entryTime)) 
       },
     });
   }
 
-  async createSubmission(submission: SubmissionReq) {
+  async createSubmission(userId: number, submission: SubmissionReq) {
     const logEntry = this.logRepository.create({
-      // userId: submission,
+      userId: userId,
       entryTime: new Date(submission.entryTime),
       exitTime: new Date(submission.exitTime),
       location: `${submission.location}`,

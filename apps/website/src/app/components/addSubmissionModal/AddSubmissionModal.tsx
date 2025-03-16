@@ -3,7 +3,7 @@ import { MenuItemType } from 'antd/es/menu/interface';
 import CustomDropdown from '../dropdown/CustomDropdown';
 import React, { useState, useEffect } from 'react';
 import CustomButton from '../button/CustomButton';
-import axios from 'axios';
+import api from '../../api'
 
 interface AddSubmissionModalProps {
   visible: boolean;
@@ -22,26 +22,26 @@ export const AddSubmissionModal: React.FC<AddSubmissionModalProps> = ({ visible,
     const cachedData = localStorage.getItem(cacheKey);
     const now = Date.now();
 
-    if (cachedData) {
-      const { timestamp, data } = JSON.parse(cachedData);
-      if (now - timestamp < 3600 * 1000) { // ✅ Ensure cache is not expired
-        setLocations(data);
-        return;
-      }
-    }
+    // if (cachedData) {
+    //   const { timestamp, data } = JSON.parse(cachedData);
+    //   if (now - timestamp < 3600 * 1000) { // ✅ Ensure cache is not expired
+    //     setLocations(data);
+    //     return;
+    //   }
+    //  }
 
     try {
-      const response = await axios.get('http://localhost:80/api/rooms');
-      const fetchedLocations = response.data.map((location: string, index: number) => ({
-        value: location, // ✅ Use the actual location as value
-        label: location, // ✅ Ensure label matches expected format
+      const response = await api.get('/location');
+      const fetchedLocations = response.data.map((item: any) => ({
+        value: item.id.toString(), // ✅ Use the actual location as value
+        label: item.name, // ✅ Ensure label matches expected format
       }));
-
       setLocations(fetchedLocations);
       localStorage.setItem(cacheKey, JSON.stringify({ timestamp: now, data: fetchedLocations }));
     } catch (error) {
       console.error('Error fetching locations:', error);
       message.error('Failed to load locations');
+
     }
   };
 
@@ -53,17 +53,23 @@ export const AddSubmissionModal: React.FC<AddSubmissionModalProps> = ({ visible,
     }
   }, [visible]);
 
+  /**
+  * Submit Log
+  */
   const handleSubmission = async (values: { key: string; location: string }) => {
     setLoading(true);
     try {
       // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-
+      const response = await api.post('/submissions', {
+"location": values.location,
+"entryTime": new Date()
+})
       message.success('Submission recorded successfully');
       form.resetFields();
       setVisible(false);
     } catch (error) {
       message.error('Failed to record submission');
+      console.log(error)
     } finally {
       setLoading(false);
     }
