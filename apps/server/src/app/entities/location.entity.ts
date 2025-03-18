@@ -1,22 +1,22 @@
-import { PrimaryGeneratedColumn, Column, Entity } from "typeorm";
+import { PrimaryGeneratedColumn, Column, Entity, OneToMany } from 'typeorm';
 import { IsOptional, IsString } from 'class-validator';
+import { Log } from './log.entity';
 
 @Entity()
 export class Location {
   @PrimaryGeneratedColumn()
-  id: number
+  id: number;
 
-  @Column({
-    unique: true
-  })
+  @Column({ unique: true })
   @IsString()
-  name: string
+  name: string;
 
-  @Column({
-    nullable: true
-  })
+  @Column({ nullable: true })
   @IsString()
   @IsOptional()
-  building: string
+  building: string;
 
+  // ✅ Correct One-To-Many Relationship
+  @OneToMany(() => Log, (log) => log.location)
+  logs: Log[];
 }

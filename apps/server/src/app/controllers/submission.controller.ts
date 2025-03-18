@@ -1,6 +1,8 @@
-import { Headers, Body, Controller, Get, Post, Param, Query, Patch, Delete } from '@nestjs/common';
-import { SubmissionReq } from '../dtos/SubmissionReq.dto';
+import { Body, Controller, Get, Post, Param, Query, Delete, UseGuards, Req, Patch } from '@nestjs/common';
 import { SubmissionService } from '../services/submission.service';
+import { Log } from '../entities/log.entity';
+import { JwtAuthGuard } from '../guards/jwt-auth.guard';
+import { LocationDto } from '../dtos/location.dto';
 
 @Controller('submissions')
 export class SubmissionController {
@@ -12,50 +14,56 @@ export class SubmissionController {
    * @param entryTime
    * @param exitTime
    */
+  @UseGuards(JwtAuthGuard)
   @Get()
-  getSubmissions(@Headers('x-user-id') userId: number, @Query('entryTime') entryTime: string, @Query('exitTime') exitTime: string) {
+  getSubmissions(@Req() req, @Query('entryTime') entryTime: string, @Query('exitTime') exitTime: string) {
     // console.log(entryTime, exitTime)
-    return this.submissionService.getSubmissions(userId, entryTime, exitTime);
+    return this.submissionService.getSubmissions(req.user.id, entryTime, exitTime);
   }
 
   /**
    * returns a submission by id
    * @param id
    */
-   @Get('/:id')
-   getSubmission(@Param('id') id: number) {
-     return this.submissionService.getSubmission(id)
-   }
+  @UseGuards(JwtAuthGuard)
+  @Get('submission/:id')
+  getSubmission(@Param('id') id: number) {
+   return this.submissionService.getSubmission(id)
+  }
 
   /**
    * @returns submissions for all users
    */
-  @Get('/all')
-  getAllSubmissions(@Headers('x-username') username: string, @Param('entryTime') entryTime: string, @Query('exitTime') exitTime: string) {
+  @UseGuards(JwtAuthGuard)
+  @Get('all')
+  getAllSubmissions(@Query('entryTime') entryTime: string, @Query('exitTime') exitTime: string) {
     return this.submissionService.getAllSubmissions(entryTime, exitTime);
   }
 
   /**
    * updates a submission
+   * @param id
    * @param submission
    */
-  // @Patch('/:id')
-  // updateSubmission(@Body() submission: SubmissionReq) {
-  //   return this.submissionService.updateSubmission(submission);
-  // }
+  @Patch('/:id')
+  updateSubmission(@Param('id') id: number, @Body() submission: LocationDto) {
+    return this.submissionService.updateSubmission(id, submission);
+  }
 
   /**
    * creates a submission
    * @param submission
    */
+  @UseGuards(JwtAuthGuard)
   @Post()
-  createSubmission(@Headers('x-user-id') userId: number, @Body() submission: SubmissionReq) {
-    return this.submissionService.createSubmission(userId, submission);
+  createSubmission(@Req() req, @Body() submission: LocationDto) {
+    return this.submissionService.createSubmission(req.user.id, submission);
   }
-  
-  // @Delete('/:id')
-  // deleteSubmission(@Param('id') id: string) {
-  //   return this.submissionService.deleteSubmission(id)
-  // }
+
+  @UseGuards(JwtAuthGuard)
+  @Delete(':id')
+  deleteSubmission(@Param('id') id: number) {
+    return this.submissionService.deleteSubmission(id)
+  }
 
 }

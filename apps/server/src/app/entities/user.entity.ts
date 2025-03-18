@@ -1,6 +1,8 @@
-﻿import { Entity, Column, PrimaryColumn, ManyToOne, JoinColumn } from 'typeorm';
+﻿import { Entity, Column, PrimaryColumn, ManyToOne, JoinColumn, OneToMany } from 'typeorm';
 import { Role } from './role.entity';
 import { IsBoolean, IsEmail, IsNumber, IsOptional, IsString } from 'class-validator';
+import { RefreshToken } from './refresh_token.entity';
+import { Log } from './log.entity';
 
 @Entity()
 export class User {
@@ -33,4 +35,10 @@ export class User {
   @JoinColumn({ name: 'roleId' })
   @IsNumber()
   role: Role;
+
+  @OneToMany(() => RefreshToken, (refreshToken) => refreshToken.user)
+  refreshTokens: RefreshToken[];
+
+  @OneToMany(() => Log, (log) => log.user)
+  logs: Log[];
 }

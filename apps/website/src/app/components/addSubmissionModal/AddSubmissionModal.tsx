@@ -1,120 +1,106 @@
-import { Modal, Form, message, Select } from 'antd';
-import { MenuItemType } from 'antd/es/menu/interface';
-import CustomDropdown from '../dropdown/CustomDropdown';
-import React, { useState, useEffect } from 'react';
-import CustomButton from '../button/CustomButton';
-import api from '../../api'
+import React, { useEffect, useState } from 'react';
+import { Modal, Form, Select, DatePicker, message } from 'antd';
+import API from '../../axiosInstance';
+import dayjs from 'dayjs';
+
+const { Option } = Select;
 
 interface AddSubmissionModalProps {
-  visible: boolean;
-  setVisible: (visible: boolean) => void;
+  visible: boolean,
+  setVisible: (v: boolean) => void,
+  refreshSubmissions: () => void,
+  editingSubmission?: any;
 }
 
-export const AddSubmissionModal: React.FC<AddSubmissionModalProps> = ({ visible, setVisible }) => {
-  const [form] = Form.useForm();
+interface location {
+  id: number,
+  name: string,
+}
+
+export const AddSubmissionModal: React.FC<AddSubmissionModalProps> = ({
+                                                                         visible,
+                                                                         setVisible,
+                                                                         refreshSubmissions,
+                                                                        editingSubmission
+                                                                      }) => {
   const [loading, setLoading] = useState(false);
-  const [rooms, setRooms] = useState<MenuItemType[]>([]);
-  const [locations, setLocations] = useState<MenuItemType[]>([]);
+  const [locations, setLocations] = useState([]);
+  const [form] = Form.useForm();
 
-  // Function to fetch rooms and cache them for 1 hour
-  const getLocations = async () => {
-    const cacheKey = 'rooms_cache';
-    const cachedData = localStorage.getItem(cacheKey);
-    const now = Date.now();
+  useEffect(() => {
+    fetchLocations();
+  }, []);
 
-    // if (cachedData) {
-    //   const { timestamp, data } = JSON.parse(cachedData);
-    //   if (now - timestamp < 3600 * 1000) { // ✅ Ensure cache is not expired
-    //     setLocations(data);
-    //     return;
-    //   }
-    //  }
+  useEffect(() => {
+    if (editingSubmission) {
+      form.setFieldsValue({
+        location: editingSubmission.location.id,
+        entryTime: dayjs(editingSubmission.entryTime),
+        exitTime: editingSubmission.exitTime ? dayjs(editingSubmission.exitTime) : null,
+      });
+    } else {
+      form.resetFields();
+    }
+  }, [editingSubmission, form]);
 
+  const fetchLocations = async () => {
     try {
-      const response = await api.get('/location');
-      const fetchedLocations = response.data.map((item: any) => ({
-        value: item.id.toString(), // ✅ Use the actual location as value
-        label: item.name, // ✅ Ensure label matches expected format
-      }));
-      setLocations(fetchedLocations);
-      localStorage.setItem(cacheKey, JSON.stringify({ timestamp: now, data: fetchedLocations }));
+      const response = await API.get('/location');
+      setLocations(response.data);
     } catch (error) {
-      console.error('Error fetching locations:', error);
-      message.error('Failed to load locations');
-
+      console.error('Failed to fetch locations:', error);
+      message.error('Failed to load locations.');
     }
   };
 
-
-  // Fetch locations when the modal becomes visible
-  useEffect(() => {
-    if (visible) {
-      getLocations();
-    }
-  }, [visible]);
-
-  /**
-  * Submit Log
-  */
-  const handleSubmission = async (values: { key: string; location: string }) => {
-    setLoading(true);
+  const handleOk = async () => {
     try {
-      // Simulate API call
-      const response = await api.post('/submissions', {
-"location": values.location,
-"entryTime": new Date()
-})
-      message.success('Submission recorded successfully');
+      setLoading(true);
+      const values = await form.validateFields();
+
+      const payload = {
+        location: values.location,
+        entryTime: values.entryTime.toISOString(),
+        exitTime: values.exitTime ? values.exitTime.toISOString() : null,
+      };
+
+      if (editingSubmission) {
+        await API.patch(`/submissions/${editingSubmission.id}`, payload);
+        message.success('Submission updated successfully');
+      } else {
+        await API.post('/submissions', payload);
+        message.success('Submission created successfully');
+      }
+
       form.resetFields();
       setVisible(false);
+      refreshSubmissions();
     } catch (error) {
-      message.error('Failed to record submission');
-      console.log(error)
-    } finally {
-      setLoading(false);
+      console.error('Error creating submission:', error);
+      message.error('Failed to create submission');
     }
-  };
-
-  const handleCancel = () => {
-    form.resetFields();
-    setVisible(false);
+    setLoading(false);
   };
 
   return (
     <Modal
-      title="Report Marshal Location"
-      open={visible}
-      onCancel={handleCancel}
-      footer={[
-        <CustomButton key="cancel" onClick={handleCancel}>
-          Cancel
-        </CustomButton>,
-        <CustomButton key="submit" type="primary" loading={loading} onClick={() => form.submit()}>
-          Submit
-        </CustomButton>,
-      ]}
-    >
-      <Form form={form} name="addSubmission" onFinish={handleSubmission} layout="vertical" style={{ marginTop: '20px' }}>
-        <Form.Item
-          name="location"
-          rules={[{ required: true, message: 'Please select a location!' }]}
-        >
-          <Select
-            showSearch
-            placeholder="Select Location"
-            options={locations} // ✅ Pass the options array directly
-            filterOption={(input, option) =>
-              (option?.label as string ?? '').toLowerCase().includes(input.toLowerCase())
-            }
-          />
+      title={editingSubmission ? 'Edit Submission' : 'New Submission'} open={visible} onOk={handleOk} onCancel={() => setVisible(false)} confirmLoading={loading}>
+      <Form form={form} layout="vertical">
+        <Form.Item name="location" label="Location" rules={[{ required: true, message: 'Please select a location' }]}>
+          <Select placeholder="Select a location">
+            {locations.map((location: location) => (
+              <Option key={location.id} value={location.id}>
+                {location.name}
+              </Option>
+            ))}
+          </Select>
         </Form.Item>
-
-
-
-
-        {/*<Form.Item name="room" rules={[{ required: false, message: 'Please select a room!' }]}>*/}
-        {/*  <CustomDropdown menuItems={rooms} placeholderText="Select Room" />*/}
-        {/*</Form.Item>*/}
+        <Form.Item name="entryTime" label="Entry Time" rules={[{ required: true, message: 'Please select entry time' }]}>
+          <DatePicker showTime />
+        </Form.Item>
+        <Form.Item name="exitTime" label="Exit Time">
+          <DatePicker showTime />
+        </Form.Item>
       </Form>
     </Modal>
   );

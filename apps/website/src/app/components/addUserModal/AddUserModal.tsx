@@ -1,91 +1,59 @@
-import { Form, Input, Modal, message, Select } from 'antd';
-import { MenuItemType } from 'antd/es/menu/interface';
-import CustomDropdown from '../dropdown/CustomDropdown';
 import React, { useState } from 'react';
-import roleHierarchy from '../../constants/roleHierarchy';
-import CustomButton from '../button/CustomButton';
-import axios from 'axios';
+import { Modal, Form, Input, Select, message, InputNumber } from 'antd';
+import API from '../../axiosInstance';
 
-interface AddUserModalProps {
-  visible: boolean;
-  setVisible: (visible: boolean) => void;
-}
+const { Option } = Select;
 
-export const AddUserModal: React.FC<AddUserModalProps> = ({ visible, setVisible }) => {
-  const [form] = Form.useForm();
+export const AddUserModal: React.FC<{ open: boolean; setopen: (v: boolean) => void; refreshUsers: () => void }> = ({
+                                                                                                                           open,
+                                                                                                                           setopen,
+                                                                                                                           refreshUsers,
+                                                                                                                         }) => {
   const [loading, setLoading] = useState(false);
+  const [form] = Form.useForm();
 
-  const roles: { value: string, label: string }[] = Object.entries(roleHierarchy).map(([role, value]) => ({
-    value: value.toString(),
-    label: role,
-  }));
-
-  const handleSubmission = async (values: { email: string; role: string }) => {
-    setLoading(true);
-
+  const handleOk = async () => {
     try {
-      await axios.post('/api/users', {
-        email: values.email,
-        role: values.role,
-      });
+      setLoading(true);
+      const values = await form.validateFields();
 
-      message.success('User added successfully');
+      await API.post('/user/create', values);
+      message.success('User created successfully');
+
       form.resetFields();
-      setVisible(false);
+      setopen(false);
+      refreshUsers();
     } catch (error) {
-      message.error('Failed to add user');
-    } finally {
-      setLoading(false);
+      console.error('Error creating user:', error);
+      message.error('Failed to create user');
     }
-  };
-
-  const handleCancel = () => {
-    form.resetFields();
-    setVisible(false);
+    setLoading(false);
   };
 
   return (
-    <Modal
-      title="Add User"
-      open={visible}
-      onCancel={handleCancel}
-      footer={[
-        <CustomButton key="cancel" onClick={handleCancel}>
-          Cancel
-        </CustomButton>,
-        <CustomButton key="submit" type="primary" loading={loading} onClick={() => form.submit()}>
-          Add User
-        </CustomButton>,
-      ]}
-    >
-      <Form form={form} name="adduser" onFinish={handleSubmission} layout="vertical" style={{ marginTop: '20px' }}>
-        <Form.Item
-          name="email"
-          rules={[{ required: true, message: 'Please input the user\'s email!' }]}
-        >
-          <Input placeholder="Email Address" addonAfter="@winchester.ac.uk" allowClear />
+    <Modal title="Add User" open={open} onOk={handleOk} onCancel={() => setopen(false)} confirmLoading={loading}>
+      <Form form={form} layout="vertical">
+        <Form.Item name="id" label="ID" rules={[{ required: true, message: 'ID is required' }]}>
+          <InputNumber />
         </Form.Item>
-        <Form.Item
-          name="firstname"
-          rules={[{ required: true, message: 'Please input the user\'s first name!' }]}
-        >
-          <Input placeholder="First Name" allowClear />
+        <Form.Item name="email" label="Email" rules={[{ required: true, type: 'email', message: 'Enter a valid email' }]}>
+          <Input />
         </Form.Item>
-        <Form.Item
-          name="lastname"
-          rules={[{ required: true, message: 'Please input the user\'s last name!' }]}
-        >
-          <Input placeholder="Last Name" allowClear />
+        <Form.Item name="firstName" label="First Name" rules={[{ required: true, message: 'First name is required' }]}>
+          <Input />
         </Form.Item>
-
-        <Form.Item
-          name="role"
-          rules={[{ required: true, message: "Please select the user's role!" }]}
-        >
-          <Select
-            placeholder="Select Role"
-            options={roles} // ✅ Pass the options array directly
-          />
+        <Form.Item name="lastName" label="Last Name" rules={[{ required: true, message: 'Last name is required' }]}>
+          <Input />
+        </Form.Item>
+        <Form.Item name="password" label="Password" rules={[{ required: true, message: 'Password is required' }]}>
+          <Input.Password />
+        </Form.Item>
+        <Form.Item name="role" label="Role" rules={[{ required: true, message: 'Role is required' }]}>
+          <Select>
+            <Option value={1}>Admin</Option>
+            <Option value={2}>Auditor</Option>
+            <Option value={3}>User</Option>
+          </Select>
         </Form.Item>
       </Form>
     </Modal>

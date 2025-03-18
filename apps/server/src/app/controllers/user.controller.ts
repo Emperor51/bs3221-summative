@@ -50,8 +50,9 @@ export class UserController {
 
   @SelfPermission('users.view.self', 'User', 'id')
   @Permissions('users.view.all')
-  @Get(':id')
+  @Get('profile/:id')
   async getUser(id) {
+    console.log("One")
     return this.userService.getUser(id);
   }
 
@@ -59,6 +60,7 @@ export class UserController {
   @UseGuards(JwtAuthGuard, RbacGuard)
   @Get('all')
   async getUsers() {
+    console.log("All")
       return this.userService.getUsers();
   }
 }

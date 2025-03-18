@@ -1,62 +1,92 @@
-﻿// src/contexts/AuthContext.tsx
-import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
+﻿import React, { createContext, useContext, useState, ReactNode, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 
 interface User {
-  name: string;
+  id: number;
+  email: string;
   role: string;
+  permissions: string[];
 }
 
 interface AuthContextType {
   user: User | null;
-  signIn: (user: User, callback?: VoidFunction) => void;
-  signOut: (callback?: VoidFunction) => void;
+  accessToken: string | null;
+  hasPermission: (permission: string) => boolean;
+  signIn: (email: string, password: string) => Promise<void>;
+  signOut: () => void;
 }
 
 const AuthContext = createContext<AuthContextType>(null!);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const navigate = useNavigate();
-  const [user, setUser] = useState<User | null>(() => {
-    const storedUser = localStorage.getItem('user');
-    if (storedUser) {
-      try {
-        return JSON.parse(storedUser);
-      } catch (error) {
-        console.error('Error parsing stored user:', error);
-      }
-    }
-    return null;
-  });
+  const [user, setUser] = useState<User | null>(null);
+  const [accessToken, setAccessToken] = useState<string | null>(null);
 
-  // Optionally, you could also use an effect to keep localStorage in sync
   useEffect(() => {
-    if (user) {
+    // Load stored tokens on app start
+    const storedUser = localStorage.getItem('user');
+    const storedAccessToken = localStorage.getItem('accessToken');
+
+    if (storedUser && storedAccessToken) {
+      setUser(JSON.parse(storedUser));
+      setAccessToken(storedAccessToken);
+    }
+  }, []);
+
+  const signIn = async (email: string, password: string) => {
+    try {
+      const response = await axios.post('http://docker.mysoft.local:3169/api/auth/login', { email, password });
+
+      const { accessToken, refreshToken, permissions } = response.data;
+      const decodedToken = JSON.parse(atob(accessToken.split('.')[1]));
+
+      const user = {
+        id: decodedToken.sub,
+        email: decodedToken.email,
+        role: decodedToken.role,
+        permissions,
+      };
+
+      // Store tokens securely
       localStorage.setItem('user', JSON.stringify(user));
-    } else {
-      localStorage.removeItem('user');
-    }
-  }, [user]);
+      localStorage.setItem('accessToken', accessToken);
+      localStorage.setItem('refreshToken', refreshToken);
 
-  const signIn = (newUser: User, callback?: VoidFunction) => {
-    setUser(newUser);
-    if (callback) {
-      callback();
-    } else {
+      setUser(user);
+      setAccessToken(accessToken);
+
       navigate('/');
+    } catch (error) {
+      throw error;
     }
   };
 
-  const signOut = (callback?: VoidFunction) => {
+  const signOut = async () => {
+    try {
+      const refreshToken = localStorage.getItem('refreshToken');
+      if (refreshToken) {
+        await axios.post('http://docker.mysoft.local:3169/api/auth/logout', { refreshToken });
+      }
+    } catch (error) {
+      console.error('Error logging out', error);
+    }
+
+    localStorage.removeItem('user');
+    localStorage.removeItem('accessToken');
+    localStorage.removeItem('refreshToken');
+
     setUser(null);
-    if (callback) {
-      callback();
-    } else {
-      navigate('/login');
-    }
+    setAccessToken(null);
+    navigate('/login');
   };
 
-  const value = { user, signIn, signOut };
+  const hasPermission = (permission: string) => {
+    return user?.permissions.includes(permission) || false;
+  };
+
+  const value = { user, accessToken, signIn, signOut, hasPermission };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }

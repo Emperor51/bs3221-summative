@@ -1,82 +1,157 @@
-﻿import CustomButton from '../../components/button/CustomButton';
-import { PlusOutlined } from '@ant-design/icons';
-import { Table } from 'antd';
-import React from 'react';
+﻿import React, { useEffect, useState } from 'react';
+import { Table, message, Popconfirm, DatePicker, Tag } from 'antd';
+import CustomButton from '../../components/button/CustomButton';
+import { PlusOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import { AddSubmissionModal } from '../../components/addSubmissionModal/AddSubmissionModal';
+import API from '../../axiosInstance';
+import dayjs from 'dayjs';
+import './submission.css';
+
+const { RangePicker } = DatePicker;
+
+interface SubmissionType {
+  id: number;
+  location: {
+    id: number;
+    name: string;
+  };
+  entryTime: string;
+  exitTime?: string | null;
+}
 
 export function Submission() {
-  const [visible, setVisible] = React.useState(false);
-  const [selectedRowKeys, setSelectedRowKeys] = React.useState<React.Key[]>([]); // Store the selected row keys
+  const [visible, setVisible] = useState(false);
+  const [submissions, setSubmissions] = useState<SubmissionType[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
+  const [editingSubmission, setEditingSubmission] = useState<SubmissionType | null>(null);
 
-  // Function to handle the submission
-  function handleSubmission() {
-    // Handle submission logic here
-  }
+  // ✅ Default range to today (00:00 - 23:59)
+  const defaultStart = dayjs().startOf('day');
+  const defaultEnd = dayjs().endOf('day');
+  const [dateRange, setDateRange] = useState<[string, string]>([
+    defaultStart.toISOString(),
+    defaultEnd.toISOString(),
+  ]);
 
-  // Toggle visibility of the modal
-  function toggleVisibilty() {
-    setVisible(!visible);
-  }
+  useEffect(() => {
+    fetchSubmissions();
+  }, [dateRange]);
 
-  // Handle selection change
+  const fetchSubmissions = async () => {
+    setLoading(true);
+    try {
+      const url = `/submissions?entryTime=${dateRange[0]}&exitTime=${dateRange[1]}`;
+      const response = await API.get(url);
+
+      // ✅ Separate ongoing submissions (where exitTime is null)
+      const ongoingSubmissions = response.data.filter((sub: SubmissionType) => !sub.exitTime);
+      const completedSubmissions = response.data.filter((sub: SubmissionType) => sub.exitTime);
+
+      // ✅ Sort ongoing submissions to appear at the top
+      setSubmissions([...ongoingSubmissions, ...completedSubmissions]);
+    } catch (error) {
+      console.error('Failed to fetch submissions:', error);
+      message.error('Failed to load submissions.');
+    }
+    setLoading(false);
+  };
+
+  const deleteSubmission = async (id: number) => {
+    try {
+      await API.delete(`/submissions/${id}`);
+      message.success('Submission deleted');
+      fetchSubmissions();
+    } catch (error) {
+      console.error('Failed to delete submission:', error);
+      message.error('Failed to delete submission');
+    }
+  };
+
+  const toggleVisibilty = () => {
+    setEditingSubmission(null);
+    setVisible(true);
+  };
+
+  const startEditing = (submission: SubmissionType) => {
+    setEditingSubmission(submission);
+    setVisible(true);
+  };
+
   const onSelectChange = (newSelectedRowKeys: React.Key[]) => {
     setSelectedRowKeys(newSelectedRowKeys);
   };
-
-  // Define the rowSelection object
-  const rowSelection = {
-    selectedRowKeys,
-    onChange: onSelectChange,
-  };
-
-  const sampleData = [
-    {
-      id: 1,
-      building: 'Building 1',
-      room: 'Room 1',
-      entryTime: '10:00 AM',
-      exitTime: '12:00 PM',
-    },
-    {
-      id: 2,
-      building: 'Building 2',
-      room: 'Room 2',
-      entryTime: '11:00 AM',
-      exitTime: '1:00 PM',
-    },
-    {
-      id: 3,
-      building: 'Building 3',
-      room: 'Room 3',
-      entryTime: '12:00 PM',
-      exitTime: '2:00 PM',
-    },
-    ];
 
   return (
     <div>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
         <h1>Submissions</h1>
-        <CustomButton
-          icon={<PlusOutlined />}
-          onClick={toggleVisibilty}
-        >
-          New Submission
-        </CustomButton>
+        <div style={{ display: 'flex', gap: '10px' }}>
+          <RangePicker
+            showTime
+            defaultValue={[defaultStart, defaultEnd]}
+            onChange={(dates, dateStrings) => {
+              if (dates && dates[0] && dates[1]) {
+                setDateRange([dates[0].toISOString(), dates[1].toISOString()]);
+              }
+            }}
+          />
+          <CustomButton icon={<PlusOutlined />} onClick={toggleVisibilty}>
+            New Submission
+          </CustomButton>
+        </div>
       </div>
 
       <Table
-        dataSource={sampleData}  // Your actual data goes here
+        dataSource={submissions}
         rowKey="id"
-        rowSelection={rowSelection}  // Use native rowSelection
+        loading={loading}
+        rowSelection={{
+          selectedRowKeys,
+          onChange: onSelectChange,
+        }}
+        rowClassName={(record: SubmissionType) => (!record.exitTime ? 'ongoing-submission' : '')} // ✅ Fix Type Issue
       >
-        <Table.Column title="Building" dataIndex="building" key="building" />
-        <Table.Column title="Room" dataIndex="room" key="room" />
-        <Table.Column title="Entry Time" dataIndex="entryTime" key="entryTime" />
-        <Table.Column title="Exit Time" dataIndex="exitTime" key="exitTime" />
+        <Table.Column title="Location" dataIndex={['location', 'name']} key="location" />
+        <Table.Column
+          title="Entry Time"
+          dataIndex="entryTime"
+          key="entryTime"
+          render={(entryTime) => dayjs(entryTime).format('DD MMM YYYY, HH:mm')}
+        />
+        <Table.Column
+          title="Exit Time"
+          dataIndex="exitTime"
+          key="exitTime"
+          render={(exitTime) =>
+            exitTime ? dayjs(exitTime).format('DD MMM YYYY, HH:mm') : <Tag color="red">Ongoing</Tag>
+          }
+        />
+        <Table.Column
+          title="Actions"
+          key="actions"
+          render={(_, record: SubmissionType) => (
+            <>
+              <CustomButton icon={<EditOutlined />} onClick={() => startEditing(record)} style={{ marginRight: 8 }} />
+              <Popconfirm
+                title="Are you sure you want to delete this submission?"
+                onConfirm={() => deleteSubmission(record.id)}
+                okText="Yes"
+                cancelText="No"
+              >
+                <CustomButton icon={<DeleteOutlined />} danger />
+              </Popconfirm>
+            </>
+          )}
+        />
       </Table>
 
-      <AddSubmissionModal visible={visible} setVisible={setVisible} />
+      <AddSubmissionModal
+        visible={visible}
+        setVisible={setVisible}
+        refreshSubmissions={fetchSubmissions}
+        editingSubmission={editingSubmission}
+      />
     </div>
   );
 }

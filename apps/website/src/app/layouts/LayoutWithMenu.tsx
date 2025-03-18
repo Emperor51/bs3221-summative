@@ -22,14 +22,14 @@ const LayoutWithMenu: React.FC<LayoutWithMenuProps> = ({ children }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const screens = useBreakpoint();
-  const { user, signOut } = useAuth();
+  const { hasPermission, signOut } = useAuth();
   const [collapsed, setCollapsed] = useState(false);
   const [drawerVisible, setDrawerVisible] = useState(false);
 
   // Generate menu items from the route configuration, filtering by allowed roles.
   const menuItems = protectedRoutes
     .filter((route: ProtectedRouteConfig) =>
-      route.menu && roleHierarchy[user?.role || 'user'] >= roleHierarchy[route.minRole]
+      route.menu && hasPermission(route.requiredPermission)
     )
     .map((route: ProtectedRouteConfig) => ({
       key: route.key,

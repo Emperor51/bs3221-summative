@@ -18,9 +18,9 @@ import { Permission } from './entities/permission.entity';
 import { PassportModule } from '@nestjs/passport';
 import { JwtModule } from '@nestjs/jwt';
 import { RbacGuard } from './guards/rbac.guard';
-import { APP_GUARD } from '@nestjs/core';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
+import { RefreshToken } from './entities/refresh_token.entity';
 
 @Module({
   imports: [
@@ -36,11 +36,11 @@ import { JwtAuthGuard } from './guards/jwt-auth.guard';
       username: 'user',
       password: 'password',
       database: 'fmdb',
-      entities: [Log, User, Role, Location, Permission],
+      entities: [Log, User, Role, Location, Permission, RefreshToken],
       synchronize: true,
     }),
 
-    TypeOrmModule.forFeature([Log, User, Role, Location, Permission]),
+    TypeOrmModule.forFeature([Log, User, Role, Location, Permission, RefreshToken]),
   ],
   controllers: [SubmissionController, UserController, RoleController, LocationController, AuthController],
   providers: [SubmissionService, UserService, RoleService, LocationService, AuthService, JwtStrategy, JwtAuthGuard, RbacGuard ]})
