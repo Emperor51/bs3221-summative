@@ -10,7 +10,7 @@ export class RbacGuard implements CanActivate {
     private reflector: Reflector,
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
-    private readonly dataSource: DataSource, // For dynamic entity fetching
+    private readonly dataSource: DataSource,
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
@@ -19,7 +19,7 @@ export class RbacGuard implements CanActivate {
 
     if (!user) throw new ForbiddenException('Unauthorized access');
 
-    // 🚀 Standard RBAC Check
+    // Standard RBAC Check
     const requiredPermissions = this.reflector.get<string[]>('permissions', context.getHandler());
     if (requiredPermissions) {
       const foundUser = await this.userRepository.findOne({
@@ -37,7 +37,7 @@ export class RbacGuard implements CanActivate {
       }
     }
 
-    // 🚀 Self-Permission Check
+    // Self-Permission Check
     const selfPermissionMetadata = this.reflector.get<{ permission: string, entity: string, field: string }>('selfPermission', context.getHandler());
     if (selfPermissionMetadata) {
       const { permission, entity, field } = selfPermissionMetadata;

@@ -57,15 +57,15 @@ export class UserService {
 
   async getUsers(): Promise<any> {
     return this.userRepository.find({
-      select: ['id', 'email', 'firstName', 'lastName', 'active'], // Only necessary fields
-      relations: ['role'], // Include role but not permissions
-      loadEagerRelations: false, // Ensure TypeORM does not load nested permissions automatically
+      select: ['id', 'email', 'firstName', 'lastName', 'active'],
+      relations: ['role'],
+      loadEagerRelations: false,
     }).then(users => {
       return users.map(user => ({
         ...user,
         role: {
           id: user.role.id,
-          role: user.role.role, // Only return role ID & name
+          role: user.role.role,
         }
       }));
     });

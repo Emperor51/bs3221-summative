@@ -78,6 +78,7 @@ const LayoutWithMenu: React.FC<LayoutWithMenuProps> = ({ children }) => {
           collapsible
           collapsed={collapsed}
           onCollapse={(value) => setCollapsed(value)}
+          style={{ height: '100vh', overflow: 'hidden', position: 'fixed', left: 0 }}
         >
           <div
             style={{ display: 'flex', flexDirection: 'column', height: '100%' }}
@@ -158,8 +159,17 @@ const LayoutWithMenu: React.FC<LayoutWithMenuProps> = ({ children }) => {
         </Layout.Header>
       )}
 
-      <Layout>
-        <Content style={{ margin: '16px' }}>{children}</Content>
+
+
+      <Layout style={{ marginLeft: screens.md ? (collapsed ? 80 : 200) : 0, transition: 'margin-left 0.3s' }}>
+        <Content
+          style={{
+            margin: '16px',
+            padding: '16px',
+            overflowY: 'auto', // ✅ Allow content scrolling
+            height: '100vh',
+          }}
+        >{children}</Content>
       </Layout>
     </Layout>
   );

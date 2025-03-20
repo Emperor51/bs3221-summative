@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Req, UseGuards, HttpException } from '@nestjs/common';
+import { Controller, Post, Body, Req, UseGuards, HttpException, Get } from '@nestjs/common';
 import { AuthService } from '../services/auth.service';
 import { JwtAuthGuard } from '../guards/jwt-auth.guard';
 
@@ -27,8 +27,9 @@ export class AuthController {
   }
 
   @Post('logout-all')
-  @UseGuards(JwtAuthGuard) // Require authentication
+  @UseGuards(JwtAuthGuard)
   async logoutAll(@Req() req) {
     return await this.authService.logoutAll(req.user.id);
   }
+
 }

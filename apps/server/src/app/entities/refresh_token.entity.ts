@@ -7,20 +7,20 @@ export class RefreshToken {
   id: number;
 
   @Column({ unique: true })
-  hashedToken: string; // Store hashed refresh token
+  hashedToken: string;
 
   @ManyToOne(() => User, (user) => user.refreshTokens, { onDelete: 'CASCADE' })
   user: User;
 
   @Column()
-  ipAddress: string; // Store IP address of login
+  ipAddress: string;
 
   @Column()
-  userAgent: string; // Store device information
+  userAgent: string;
 
   @CreateDateColumn()
   createdAt: Date;
 
   @Column()
-  expiresAt: Date; // Expiration timestamp
+  expiresAt: Date;
 }

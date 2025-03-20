@@ -82,6 +82,17 @@ export function Submission() {
     setSelectedRowKeys(newSelectedRowKeys);
   };
 
+  const endSubmission = async (values: SubmissionType) => {
+    const payload = {
+      location: values.location.id,
+      entryTime: values.entryTime,
+      exitTime: new Date().toISOString(),
+    };
+
+    await API.patch(`/submissions/${values.id}`, payload);
+    fetchSubmissions();
+  }
+
   return (
     <div>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
@@ -139,8 +150,14 @@ export function Submission() {
                 okText="Yes"
                 cancelText="No"
               >
-                <CustomButton icon={<DeleteOutlined />} danger />
+                <CustomButton icon={<DeleteOutlined /> } danger style={{ marginRight: 8 }} />
               </Popconfirm>
+              {record.exitTime ? null :
+                <Popconfirm title="Are you sure you want to end this submission?"
+                                                    onConfirm={() => endSubmission(record)}>
+                  <CustomButton type="primary">End</CustomButton>
+                </Popconfirm>
+              }
             </>
           )}
         />

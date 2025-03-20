@@ -16,7 +16,6 @@ export class Location {
   @IsOptional()
   building: string;
 
-  // ✅ Correct One-To-Many Relationship
   @OneToMany(() => Log, (log) => log.location)
   logs: Log[];
 }

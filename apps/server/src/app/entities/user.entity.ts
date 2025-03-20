@@ -31,7 +31,7 @@ export class User {
   @IsString()
   password: string;
 
-  @ManyToOne(() => Role, { eager: true }) // Automatically fetch role when querying users
+  @ManyToOne(() => Role, { eager: true })
   @JoinColumn({ name: 'roleId' })
   @IsNumber()
   role: Role;

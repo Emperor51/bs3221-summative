@@ -40,6 +40,9 @@ export const AddSubmissionModal: React.FC<AddSubmissionModalProps> = ({
       });
     } else {
       form.resetFields();
+      form.setFieldsValue({
+        entryTime: dayjs(),
+      })
     }
   }, [editingSubmission, form]);
 

@@ -1,6 +1,7 @@
 ﻿import React, { createContext, useContext, useState, ReactNode, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import API from '../axiosInstance';
 
 interface User {
   id: number;
@@ -15,6 +16,7 @@ interface AuthContextType {
   hasPermission: (permission: string) => boolean;
   signIn: (email: string, password: string) => Promise<void>;
   signOut: () => void;
+  refreshAccessToken: () => Promise<boolean>;
 }
 
 const AuthContext = createContext<AuthContextType>(null!);
@@ -23,44 +25,41 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const navigate = useNavigate();
   const [user, setUser] = useState<User | null>(null);
   const [accessToken, setAccessToken] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
+
 
   useEffect(() => {
-    // Load stored tokens on app start
-    const storedUser = localStorage.getItem('user');
-    const storedAccessToken = localStorage.getItem('accessToken');
+    const token = localStorage.getItem('accessToken');
+    const refreshToken = localStorage.getItem('refreshToken');
 
-    if (storedUser && storedAccessToken) {
-      setUser(JSON.parse(storedUser));
-      setAccessToken(storedAccessToken);
+    if (token && refreshToken) {
+      refreshAccessToken().then((valid) => {
+        if (!valid) {
+          signOut();
+        }
+        else {
+          storeUserDetails()
+        }
+      })
+        .finally(() => setLoading(false));
+    } else {
+      setLoading(false);
     }
   }, []);
 
   const signIn = async (email: string, password: string) => {
-    try {
-      const response = await axios.post('http://docker.mysoft.local:3169/api/auth/login', { email, password });
+    const response = await axios.post('http://docker.mysoft.local:3169/api/auth/login', { email, password });
 
-      const { accessToken, refreshToken, permissions } = response.data;
-      const decodedToken = JSON.parse(atob(accessToken.split('.')[1]));
+    const { accessToken, refreshToken } = response.data;
 
-      const user = {
-        id: decodedToken.sub,
-        email: decodedToken.email,
-        role: decodedToken.role,
-        permissions,
-      };
+    // Store tokens securely
+    localStorage.setItem('accessToken', accessToken);
+    localStorage.setItem('refreshToken', refreshToken);
+    storeUserDetails()
 
-      // Store tokens securely
-      localStorage.setItem('user', JSON.stringify(user));
-      localStorage.setItem('accessToken', accessToken);
-      localStorage.setItem('refreshToken', refreshToken);
+    setAccessToken(accessToken);
 
-      setUser(user);
-      setAccessToken(accessToken);
-
-      navigate('/');
-    } catch (error) {
-      throw error;
-    }
+    navigate('/');
   };
 
   const signOut = async () => {
@@ -82,13 +81,52 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     navigate('/login');
   };
 
+  const refreshAccessToken = async (): Promise<boolean> => {
+    const refreshToken = localStorage.getItem('refreshToken');
+    if (!refreshToken) return false;
+
+    try {
+      const { data } = await API.post('/auth/refresh', { refreshToken });
+
+      // ✅ Store new access & refresh tokens
+      localStorage.setItem('accessToken', data.accessToken);
+      localStorage.setItem('refreshToken', data.refreshToken);
+
+      API.defaults.headers.common['Authorization'] = `Bearer ${data.accessToken}`;
+      return true;
+    } catch {
+      return false;
+    }
+  };
+
+  const storeUserDetails = useCallback(() => {
+    const accessToken = localStorage.getItem('accessToken');
+    if (!accessToken) return;
+
+    const decodedToken = JSON.parse(atob(accessToken.split('.')[1]));
+
+    const user = {
+      id: decodedToken.sub,
+      email: decodedToken.email,
+      role: decodedToken.role,
+      permissions: decodedToken.permissions,
+    };
+
+    // Store tokens securely
+    localStorage.setItem('user', JSON.stringify(user));
+
+    setUser(user);
+  }, []);
+
   const hasPermission = (permission: string) => {
     return user?.permissions.includes(permission) || false;
   };
 
-  const value = { user, accessToken, signIn, signOut, hasPermission };
+  const value = { user, accessToken, signIn, signOut, hasPermission, refreshAccessToken };
 
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+  return <AuthContext.Provider value={value}>
+    {!loading && children} {/* Prevent rendering UI until auth check is done */}
+  </AuthContext.Provider>;
 }
 
 export function useAuth() {

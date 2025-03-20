@@ -8,7 +8,7 @@ export class Log {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @ManyToOne(() => User, (user) => user.logs, { eager: true }) // ✅ Establish user relationship
+  @ManyToOne(() => User, (user) => user.logs, { eager: true })
   @JoinColumn({ name: 'userId' })
   user: User;
 
@@ -21,7 +21,6 @@ export class Log {
   @IsOptional()
   exitTime: Date;
 
-  // ✅ Correct Many-to-One Relationship
   @ManyToOne(() => Location, (location) => location.logs, { eager: true })
   @JoinColumn({ name: 'locationId' })
   @IsNumber()

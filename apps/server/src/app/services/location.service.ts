@@ -12,7 +12,12 @@ export class LocationService{
   ) {}
 
   async listLocations() {
-    return this.locationRepository.find()
+    return this.locationRepository.find({
+      select: {
+        id: true,
+        name: true,
+      }
+    })
   }
 
   async createLocation(location: Location) {

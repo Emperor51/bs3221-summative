@@ -23,15 +23,28 @@ export class AuthService {
   }
 
   async login(email: string, password: string, ipAddress: string, userAgent: string) {
-    const user = await this.validateUser(email, password);
+    const user = await this.userRepository.findOne({
+      where: { email, active: true },
+      relations: ['role', 'role.permissions'], // ✅ Ensure permissions are loaded
+    });
+
     if (!user) throw new UnauthorizedException('Invalid credentials');
 
-    const payload = { sub: user.id, email: user.email, role: user.role.role };
-    const accessToken = this.jwtService.sign(payload);
-    const refreshTokenPlain = this.jwtService.sign(payload, { expiresIn: '7d' });
-    const userPermissions = user.role.permissions.map((p) => p.name);
+    const isValidPassword = await bcrypt.compare(password, user.password);
+    if (!isValidPassword) throw new UnauthorizedException('Invalid credentials');
 
-    // Hash the refresh token before storing it
+    // Get user permissions
+    const userPermissions = user.role.permissions.map((p) => p.name) || [];
+
+    // Generate access token including permissions
+    const accessPayload = { sub: user.id, email: user.email, role: user.role.role, permissions: userPermissions };
+    const accessToken = this.jwtService.sign(accessPayload);
+
+    // Generate refresh token without permissions
+    const refreshPayload = { sub: user.id, email: user.email, role: user.role.role };
+    const refreshTokenPlain = this.jwtService.sign(refreshPayload, { expiresIn: '7d' });
+
+    // Hash the refresh token before storing
     const hashedRefreshToken = await bcrypt.hash(refreshTokenPlain, 10);
 
     // Store refresh token in DB
@@ -44,16 +57,17 @@ export class AuthService {
     });
     await this.refreshTokenRepository.save(newRefreshToken);
 
-    return { accessToken, refreshToken: refreshTokenPlain, permissions: userPermissions };
+    return { accessToken, refreshToken: refreshTokenPlain };
   }
+
 
   async refresh(refreshToken: string) {
     // Clean up expired refresh tokens
     await this.refreshTokenRepository.delete({ expiresAt: LessThan(new Date()) });
 
-    // Find the refresh token in the DB
+    // Load user, role, and permissions when fetching refresh tokens
     const storedTokens = await this.refreshTokenRepository.find({
-      relations: ['user'],
+      relations: ['user', 'user.role', 'user.role.permissions'],
     });
 
     // Check if any stored token matches
@@ -63,10 +77,27 @@ export class AuthService {
 
     if (!storedToken) throw new ForbiddenException('Invalid or expired refresh token');
 
-    // Generate new tokens
-    const payload = { sub: storedToken.user.id, email: storedToken.user.email, role: storedToken.user.role.role };
-    const newAccessToken = this.jwtService.sign(payload);
-    const newRefreshTokenPlain = this.jwtService.sign(payload, { expiresIn: '7d' });
+    const user = storedToken.user;
+
+    // Ensure permissions exist before mapping
+    const userPermissions = user?.role?.permissions?.map((p) => p.name) || [];
+
+    // Generate new access token including permissions
+    const accessPayload = {
+      sub: user.id,
+      email: user.email,
+      role: user.role.role,
+      permissions: userPermissions,
+    };
+    const newAccessToken = this.jwtService.sign(accessPayload);
+
+    // Generate refresh token without permissions (keep it lightweight)
+    const refreshPayload = {
+      sub: user.id,
+      email: user.email,
+      role: user.role.role,
+    };
+    const newRefreshTokenPlain = this.jwtService.sign(refreshPayload, { expiresIn: '7d' });
 
     // Hash the new refresh token
     const newHashedRefreshToken = await bcrypt.hash(newRefreshTokenPlain, 10);
@@ -78,6 +109,7 @@ export class AuthService {
 
     return { accessToken: newAccessToken, refreshToken: newRefreshTokenPlain };
   }
+
 
   async logout(refreshToken: string) {
     const storedTokens = await this.refreshTokenRepository.find();
@@ -96,4 +128,5 @@ export class AuthService {
     await this.refreshTokenRepository.delete({ user: { id: userId } });
     return { message: 'Logged out from all devices' };
   }
+
 }

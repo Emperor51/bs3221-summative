@@ -21,7 +21,7 @@ export class SubmissionService {
 
   async getSubmissions(userId: number, entryTime: string, exitTime: string) {
     return this.logRepository.find({
-      relations: ['user', 'location'], // ✅ Only fetch user & location relations
+      relations: ['user', 'location'],
       select: {
         id: true,
         entryTime: true,
@@ -46,7 +46,7 @@ export class SubmissionService {
         {
           user: { id: userId },
           entryTime: LessThanOrEqual(new Date(exitTime)),
-          exitTime: IsNull(), // ✅ Allows exitTime to be NULL
+          exitTime: IsNull(),
         },
       ],
     });
@@ -66,10 +66,10 @@ export class SubmissionService {
     }
 
     const logEntry = this.logRepository.create({
-      user, // ✅ Store the user entity, not just ID
+      user,
       entryTime: new Date(submission.entryTime),
       exitTime: submission.exitTime ? new Date(submission.exitTime) : null,
-      location, // ✅ Directly reference the found location entity
+      location
     });
 
     return this.logRepository.save(logEntry);
@@ -82,21 +82,11 @@ export class SubmissionService {
 
   async getAllSubmissions(entryTime: string, exitTime: string) {
     return this.logRepository.find({
-      relations: ['user', 'location'], // ✅ Only fetch necessary relations
+      relations: ['user', 'location'],
       select: {
         id: true,
         entryTime: true,
         exitTime: true,
-        user: {
-          id: true,
-          firstName: true,
-          lastName: true,
-        },
-        location: {
-          id: true,
-          name: true,
-          building: true,
-        },
       },
       where: [
         {
@@ -108,8 +98,24 @@ export class SubmissionService {
           exitTime: IsNull(),
         },
       ],
-    });
+      loadEagerRelations: false,
+    }).then(logs => logs.map(log => ({
+      id: log.id,
+      entryTime: log.entryTime,
+      exitTime: log.exitTime,
+      user: {
+        id: log.user.id,
+        firstName: log.user.firstName,
+        lastName: log.user.lastName,
+        email: log.user.email,
+      },
+      location: {
+        id: log.location.id,
+        name: log.location.name,
+      }
+    })));
   }
+
 
 
   async deleteSubmission(id: number) {
@@ -126,7 +132,7 @@ export class SubmissionService {
     const location = submission.location ? await this.locationRepository.findOne({ where: { id: submission.location } }) : log.location;
 
     return await this.logRepository.update(id, {
-      location, // ✅ Ensure we use location entity
+      location,
       entryTime: new Date(submission.entryTime),
       exitTime: submission.exitTime ? new Date(submission.exitTime) : null,
     });
