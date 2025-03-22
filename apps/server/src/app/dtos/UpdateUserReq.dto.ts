@@ -1,4 +1,5 @@
-import { IsEmail, IsOptional, IsString } from 'class-validator';
+import { IsEmail, IsNumber, IsOptional, IsString } from 'class-validator';
+import { Role } from '../entities/role.entity';
 
 export class UpdateUserReqDto {
   @IsString()
@@ -10,4 +11,9 @@ export class UpdateUserReqDto {
   @IsEmail()
   @IsOptional()
   email: string;
+  @IsNumber()
+  @IsOptional()
+  roleId: number;
+
+  role: Role;
 }

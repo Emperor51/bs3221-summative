@@ -1,7 +1,7 @@
 ﻿import React, { useEffect, useState } from 'react';
-import { Table, message, Popconfirm, DatePicker, Tag } from 'antd';
+import { Table, message, Popconfirm, DatePicker, Tag, Button } from 'antd';
 import CustomButton from '../../components/button/CustomButton';
-import { PlusOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
+import { PlusOutlined, EditOutlined, DeleteOutlined, LockOutlined } from '@ant-design/icons';
 import { AddSubmissionModal } from '../../components/addSubmissionModal/AddSubmissionModal';
 import API from '../../axiosInstance';
 import dayjs from 'dayjs';
@@ -138,19 +138,35 @@ export function Submission() {
             exitTime ? dayjs(exitTime).format('DD MMM YYYY, HH:mm') : <Tag color="red">Ongoing</Tag>
           }
         />
+
+        <Table.Column
+          title="Elapsed Time"
+          key="elapsedTime"
+          render={(_, record: SubmissionType) => {
+            const entryTime = dayjs(record.entryTime);
+            const exitTime = record.exitTime ? dayjs(record.exitTime) : dayjs();
+            const duration = dayjs.duration(exitTime.diff(entryTime));
+            return `${duration.asDays() < 1 ? "" : duration.days() + " days"},
+                    ${duration.asHours() < 1 ? "" : duration.hours() + " hours"}, ${duration.minutes()} minutes`}}
+        />
+
         <Table.Column
           title="Actions"
           key="actions"
           render={(_, record: SubmissionType) => (
             <>
-              <CustomButton icon={<EditOutlined />} onClick={() => startEditing(record)} style={{ marginRight: 8 }} />
+              <Button icon={<EditOutlined />} onClick={() => startEditing(record)} style={{ marginRight: 8 }}>
+                Edit
+              </Button>
               <Popconfirm
                 title="Are you sure you want to delete this submission?"
                 onConfirm={() => deleteSubmission(record.id)}
                 okText="Yes"
                 cancelText="No"
               >
-                <CustomButton icon={<DeleteOutlined /> } danger style={{ marginRight: 8 }} />
+                <Button icon={<DeleteOutlined /> } danger style={{ marginRight: 8 }}>
+                  Delete
+                </Button>
               </Popconfirm>
               {record.exitTime ? null :
                 <Popconfirm title="Are you sure you want to end this submission?"

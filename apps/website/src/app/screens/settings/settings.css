@@ -1,0 +1,11 @@
+.locationCard {
+    display: flex;
+    align-items: center;
+    background: white;
+    padding-left: 8px;
+    padding-right: 8px;
+    border-radius: 6px;
+    border-color: lightgray;
+    border-width: 1px;
+    border-style: solid;
+}

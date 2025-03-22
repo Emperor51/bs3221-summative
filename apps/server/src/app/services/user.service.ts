@@ -4,12 +4,15 @@ import { Repository } from 'typeorm';
 import { User } from '../entities/user.entity';
 import * as bcrypt from 'bcrypt';
 import { UpdateUserReqDto } from '../dtos/UpdateUserReq.dto';
+import { Role } from '../entities/role.entity';
 
 @Injectable()
 export class UserService {
   constructor(
     @InjectRepository(User)
     private userRepository: Repository<User>,
+    @InjectRepository(Role)
+    private roleRepository: Repository<Role>,
   ) {
   }
 
@@ -52,6 +55,8 @@ export class UserService {
   }
 
   async update(id: string, user: UpdateUserReqDto): Promise<void> {
+    const role: Role = await this.roleRepository.findOne({ where: { id: user.roleId } });
+    user.role = role;
     await this.userRepository.update(id, user);
   }
 
