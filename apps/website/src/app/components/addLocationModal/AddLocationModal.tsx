@@ -26,8 +26,8 @@ export const AddLocationModal: React.FC<AddLocationModalProps> = ({open, setOpen
       setOpen(false);
       refreshLocations();
     } catch (error) {
-      console.error('Error creating user:', error);
-      message.error('Failed to create user');
+      console.error('Error creating location:', error);
+      message.error('Failed to create location');
     }
     setLoading(false);
   };

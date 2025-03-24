@@ -15,6 +15,7 @@ export interface ProtectedRouteConfig {
     label: string;
     icon: React.ReactNode;
   };
+  description: string;
 }
 
 const protectedRoutes: ProtectedRouteConfig[] = [
@@ -31,6 +32,7 @@ const protectedRoutes: ProtectedRouteConfig[] = [
     element: <Submission />,
     requiredPermission: 'page.view.submit',
     menu: { label: 'Submission', icon: <FormOutlined /> },
+    description: 'Submit your location',
   },
   {
     key: '3',
@@ -38,6 +40,7 @@ const protectedRoutes: ProtectedRouteConfig[] = [
     element: <Audit />,
     requiredPermission: 'page.view.audit',
     menu: { label: 'Audit', icon: <AuditOutlined /> },
+    description: 'Audit Fire Marshals'
   },
   {
     key: '4',
@@ -45,6 +48,7 @@ const protectedRoutes: ProtectedRouteConfig[] = [
     element: <UserSetup />,
     requiredPermission: 'page.view.users',
     menu: { label: 'User Setup', icon: <UserOutlined /> },
+    description: 'User Management'
   },
   {
     key: '5',
@@ -52,6 +56,7 @@ const protectedRoutes: ProtectedRouteConfig[] = [
     element: <Settings />,
     requiredPermission: 'page.view.settings',
     menu: { label: 'Settings', icon: <SettingOutlined /> },
+    description: 'Application Settings'
   },
 ];
 

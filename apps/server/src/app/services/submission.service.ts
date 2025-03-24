@@ -49,6 +49,7 @@ export class SubmissionService {
           exitTime: IsNull(),
         },
       ],
+      loadEagerRelations: false,
     });
   }
 

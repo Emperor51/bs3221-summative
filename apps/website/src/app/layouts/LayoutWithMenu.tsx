@@ -6,7 +6,6 @@ import Sider from 'antd/es/layout/Sider';
 import { MenuOutlined, LogoutOutlined } from '@ant-design/icons';
 import { useAuth } from '../contexts/AuthContext';
 import protectedRoutes, { ProtectedRouteConfig } from '../config/protectedRoutes';
-import roleHierarchy from '../constants/roleHierarchy';
 import CustomButton from '../components/button/CustomButton';
 import logo from '../../assets/logo.png';
 import crest from '../../assets/crest.png';
