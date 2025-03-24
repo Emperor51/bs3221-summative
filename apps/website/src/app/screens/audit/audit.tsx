@@ -33,36 +33,33 @@ export function Audit() {
   const [loading, setLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
 
-  // ✅ Default to today's date range (00:00 - 23:59)
   const defaultStart = dayjs().startOf('day');
   const defaultEnd = dayjs().endOf('day');
-  const [dateRange, setDateRange] = useState<[string, string]>([
-    defaultStart.toISOString(),
-    defaultEnd.toISOString(),
-  ]);
+  const [dateRange, setDateRange] = useState<[string, string]>([defaultStart.toISOString(), defaultEnd.toISOString()]);
 
   useEffect(() => {
-    fetchAuditLogs();
+    fetchPastAuditLogs();
   }, [dateRange]);
 
-  const fetchAuditLogs = async () => {
+  useEffect(() => {
+    fetchLiveAuditLogs();
+    const interval = setInterval(fetchLiveAuditLogs, 60000); // Optional refresh every 60 seconds
+    return () => clearInterval(interval);
+  }, []);
+
+  const fetchLiveAuditLogs = async () => {
     setLoading(true);
     try {
-      const url = `/submissions/all?entryTime=${dateRange[0]}&exitTime=${dateRange[1]}`;
+      const now = dayjs().toISOString();
+      const url = `/submissions/all?entryTime=${now}&exitTime=${now}`;
       const response = await API.get(url);
 
-      const now = dayjs();
+      const nowTime = dayjs();
 
-      // ✅ Active if exitTime is null OR exitTime is in the future
       const activeLogs = response.data.filter(
-        (log: AuditLog) => !log.exitTime || dayjs(log.exitTime).isAfter(now)
+        (log: AuditLog) => !log.exitTime || dayjs(log.exitTime).isAfter(nowTime)
       );
 
-      const pastLogs = response.data.filter(
-        (log: AuditLog) => log.exitTime && dayjs(log.exitTime).isBefore(now)
-      );
-
-      // ✅ Keep Understaffed Locations Static (Independent of Date Filters)
       const locationCounts: Record<string, number> = {};
       response.data.forEach((log: AuditLog) => {
         const locationName = log.location.name;
@@ -74,16 +71,33 @@ export function Audit() {
         .map(([location, count]) => ({ location, count }));
 
       setActiveLogs(activeLogs);
-      setPastLogs(pastLogs);
       setUnderstaffedLocations(understaffed);
     } catch (error) {
-      console.error('Failed to fetch audit logs:', error);
-      message.error('Failed to load audit data.');
+      console.error('Failed to fetch live audit logs:', error);
+      message.error('Failed to load live audit data.');
     }
     setLoading(false);
   };
 
-  // ✅ Search filter function
+  const fetchPastAuditLogs = async () => {
+    setLoading(true);
+    try {
+      const url = `/submissions/all?entryTime=${dateRange[0]}&exitTime=${dateRange[1]}`;
+      const response = await API.get(url);
+
+      const now = dayjs();
+      const pastLogs = response.data.filter(
+        (log: AuditLog) => log.exitTime && dayjs(log.exitTime).isBefore(now)
+      );
+
+      setPastLogs(pastLogs);
+    } catch (error) {
+      console.error('Failed to fetch past audit logs:', error);
+      message.error('Failed to load past audit data.');
+    }
+    setLoading(false);
+  };
+
   const filterData = (data: AuditLog[]) =>
     data.filter((log) =>
       [log.user.firstName, log.user.lastName, log.location.name]
@@ -96,8 +110,6 @@ export function Audit() {
     <div>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
         <h1>Audit</h1>
-
-        {/* ✅ Search Input with Clear Button */}
         <Space>
           <Search
             placeholder="Search by name or location..."
@@ -116,9 +128,7 @@ export function Audit() {
 
       <p>View fire marshals' locations and history. Search or filter locations below.</p>
 
-      {/* ✅ Tabbed Selection */}
       <Tabs defaultActiveKey="active">
-        {/* 🟢 Tab 1: Active Marshals */}
         <TabPane tab="Active Marshals" key="active">
           <Table dataSource={filterData(activeLogs)} rowKey="id" loading={loading}>
             <Table.Column
@@ -142,19 +152,18 @@ export function Audit() {
                 const duration = dayjs.duration(exitTime.diff(entryTime));
                 return `${duration.asDays() > 1 ? duration.days() + " days" : ""}
                         ${duration.asHours() > 1 ? duration.hours() + " hours, " : ""}
-                        ${duration.asMinutes() >= 1 ? duration.minutes() + " minutes" : duration.seconds() + " seconds"} `;
+                        ${duration.asMinutes() >= 1 ? duration.minutes() + " minutes" : duration.seconds() + " seconds"}`;
               }}
             />
           </Table>
         </TabPane>
 
-        {/* 🕓 Tab 2: Past Entries */}
         <TabPane tab="Past Entries" key="past">
           <div style={{ marginBottom: '1rem' }}>
             <RangePicker
               showTime
               defaultValue={[defaultStart, defaultEnd]}
-              onChange={(dates, dateStrings) => {
+              onChange={(dates) => {
                 if (dates && dates[0] && dates[1]) {
                   setDateRange([dates[0].toISOString(), dates[1].toISOString()]);
                 }
@@ -185,7 +194,6 @@ export function Audit() {
           </Table>
         </TabPane>
 
-        {/* ⚠️ Tab 3: Understaffed Locations (Static) */}
         <TabPane tab="Understaffed Locations" key="understaffed">
           <Table dataSource={understaffedLocations} rowKey="location" loading={loading}>
             <Table.Column title="Location" dataIndex="location" key="location" />

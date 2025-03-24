@@ -146,8 +146,8 @@ export function Submission() {
             const entryTime = dayjs(record.entryTime);
             const exitTime = record.exitTime ? dayjs(record.exitTime) : dayjs();
             const duration = dayjs.duration(exitTime.diff(entryTime));
-            return `${duration.asDays() < 1 ? "" : duration.days() + " days"},
-                    ${duration.asHours() < 1 ? "" : duration.hours() + " hours"}, ${duration.minutes()} minutes`}}
+            return `${duration.asDays() < 1 ? "" : duration.days() + " days,"}
+                    ${duration.asHours() < 1 ? "" : duration.hours() + " hours,"} ${duration.minutes()} minutes`}}
         />
 
         <Table.Column
