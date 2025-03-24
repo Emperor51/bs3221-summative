@@ -4,6 +4,7 @@ import { Tabs, Table, Button, Input, Space, message, Popconfirm, List, Card } fr
 import { PlusOutlined, DeleteOutlined } from '@ant-design/icons';
 import API from '../../axiosInstance'; // Using existing axios instance
 import './settings.css';
+import { AddLocationModal } from '../../components/addLocationModal/AddLocationModal';
 
 const { TabPane } = Tabs;
 
@@ -17,6 +18,7 @@ const Settings: React.FC = () => {
   const [locations, setLocations] = useState<Location[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [newLocation, setNewLocation] = useState<string>('');
+  const [locationModalVisible, setLocationModalVisible] = useState<boolean>(false);
 
   useEffect(() => {
     fetchLocations();
@@ -34,20 +36,9 @@ const Settings: React.FC = () => {
     }
   };
 
-  const addLocation = async () => {
-    if (!newLocation.trim()) {
-      message.warning('Location name cannot be empty.');
-      return;
-    }
-    try {
-      const response = await API.post('/location', { name: newLocation });
-      setLocations([...locations, response.data]); // Update UI with new location
-      setNewLocation('');
-      message.success('Location added successfully.');
-    } catch (error) {
-      message.error('Failed to add location.');
-    }
-  };
+  const showLocationModal = () => {
+    setLocationModalVisible(true)
+  }
 
   const deleteLocation = async (id: string) => {
     try {
@@ -76,25 +67,6 @@ const Settings: React.FC = () => {
     );
   }
 
-  const AddLocationCard: React.FC = () => {
-    return (
-      <div className={'locationCard'}>
-        <Button
-          type="primary"
-          icon={<PlusOutlined />}
-          onClick={addLocation}
-          style={{ marginRight: 10, marginTop: 10, marginBottom: 10 }}
-        />
-        <Input
-          placeholder="New location name"
-          value={newLocation}
-          onChange={(e) => setNewLocation(e.target.value)}
-        />
-      </div>
-    );
-  };
-
-
   return (
     <div>
       <h1>Settings</h1>
@@ -102,34 +74,25 @@ const Settings: React.FC = () => {
       <Tabs defaultActiveKey="1">
         <TabPane tab="Location Management" key="1">
           <Space style={{ marginBottom: 16 }}>
-            {/*<Input*/}
-            {/*  placeholder="New location name"*/}
-            {/*  value={newLocation}*/}
-            {/*  onChange={e => setNewLocation(e.target.value)}*/}
-            {/*/>*/}
-            {/*<Button type="primary" icon={<PlusOutlined />} onClick={addLocation}>*/}
-            {/*  Add Location*/}
-            {/*</Button>*/}
+            <Button type="primary" icon={<PlusOutlined />} onClick={showLocationModal}>
+              Add Location
+            </Button>
           </Space>
 
           <List
             grid={{ gutter: 16, column: 4 }}
-            dataSource={[{ isPlaceholder: true } as unknown as Location, ...locations]} // Cast as Location
+            dataSource={locations} // Cast as Location
             loading={loading}
             renderItem={(location) =>
-              "isPlaceholder" in location ? (
-                <List.Item>
-                  <AddLocationCard />
-                </List.Item>
-              ) : (
-                <List.Item>
-                  <LocationCard location={location} />
-                </List.Item>
-              )
+              <List.Item>
+                <LocationCard location={location} />
+              </List.Item>
             }
           />
         </TabPane>
       </Tabs>
+
+      <AddLocationModal open={locationModalVisible} setOpen={setLocationModalVisible} refreshLocations={fetchLocations} />
 
     </div>
   );

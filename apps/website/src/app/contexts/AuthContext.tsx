@@ -48,7 +48,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const signIn = async (email: string, password: string) => {
-    const response = await axios.post('http://docker.mysoft.local:3169/api/auth/login', { email, password });
+    const response = await axios.post('http://localhost:3169/api/auth/login', { email, password });
 
     const { accessToken, refreshToken } = response.data;
 
@@ -66,7 +66,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       const refreshToken = localStorage.getItem('refreshToken');
       if (refreshToken) {
-        await axios.post('http://docker.mysoft.local:3169/api/auth/logout', { refreshToken });
+        await axios.post('http://localhost:3169/api/auth/logout', { refreshToken });
       }
     } catch (error) {
       console.error('Error logging out', error);
@@ -86,7 +86,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (!refreshToken) return false;
 
     try {
-      const { data } = await API.post('/auth/refresh', { refreshToken });
+      const { data } = await axios.post('http://localhost:3169/api/auth/refresh', { refreshToken });
 
       // ✅ Store new access & refresh tokens
       localStorage.setItem('accessToken', data.accessToken);

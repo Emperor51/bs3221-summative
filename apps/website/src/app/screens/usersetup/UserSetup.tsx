@@ -175,7 +175,7 @@ const UserSetup: React.FC = () => {
       </Table>
 
       {/* Add User Modal */}
-      <AddUserModal open={visible} setopen={setVisible} refreshUsers={fetchUsers} />
+      <AddUserModal open={visible} setOpen={setVisible} refreshUsers={fetchUsers} />
 
       {/* Edit User Modal */}
       <Modal

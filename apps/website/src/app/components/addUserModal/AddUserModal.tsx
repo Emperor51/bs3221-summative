@@ -4,11 +4,13 @@ import API from '../../axiosInstance';
 
 const { Option } = Select;
 
-export const AddUserModal: React.FC<{ open: boolean; setopen: (v: boolean) => void; refreshUsers: () => void }> = ({
-                                                                                                                           open,
-                                                                                                                           setopen,
-                                                                                                                           refreshUsers,
-                                                                                                                         }) => {
+interface AddUserModalProps {
+  open: boolean;
+  setOpen: (open: boolean) => void;
+  refreshUsers: () => void;
+}
+
+export const AddUserModal: React.FC<AddUserModalProps> = ({open, setOpen, refreshUsers}) => {
   const [loading, setLoading] = useState(false);
   const [form] = Form.useForm();
 
@@ -21,7 +23,7 @@ export const AddUserModal: React.FC<{ open: boolean; setopen: (v: boolean) => vo
       message.success('User created successfully');
 
       form.resetFields();
-      setopen(false);
+      setOpen(false);
       refreshUsers();
     } catch (error) {
       console.error('Error creating user:', error);
@@ -31,7 +33,7 @@ export const AddUserModal: React.FC<{ open: boolean; setopen: (v: boolean) => vo
   };
 
   return (
-    <Modal title="Add User" open={open} onOk={handleOk} onCancel={() => setopen(false)} confirmLoading={loading}>
+    <Modal title="Add User" open={open} onOk={handleOk} onCancel={() => setOpen(false)} confirmLoading={loading}>
       <Form form={form} layout="vertical">
         <Form.Item name="id" label="ID" rules={[{ required: true, message: 'ID is required' }]}>
           <InputNumber />

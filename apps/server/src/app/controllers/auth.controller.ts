@@ -35,6 +35,10 @@ export class AuthController {
     return await this.authService.logoutAll(req.user.id);
   }
 
+  /**
+   * Reset Password
+   * @param body
+   */
   @Permissions('user.password.reset.all')
   @UseGuards(JwtAuthGuard, RbacGuard)
   @Post('reset-password')

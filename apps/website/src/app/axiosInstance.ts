@@ -2,7 +2,7 @@ import axios from 'axios';
 import { useAuth } from './contexts/AuthContext';
 
 const API = axios.create({
-  baseURL: "http://docker.mysoft.local:3169/api",
+  baseURL: "http://localhost:3169/api",
 });
 
 API.interceptors.request.use((config) => {
@@ -11,6 +11,7 @@ API.interceptors.request.use((config) => {
     config.headers.Authorization = `Bearer ${accessToken}`;
   }
   return config;
+
 });
 
 API.interceptors.response.use(
