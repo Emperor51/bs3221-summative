@@ -4,7 +4,7 @@ import { ExtractJwt, Strategy } from 'passport-jwt';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
-  private readonly logger = new Logger(JwtStrategy.name);
+  // private readonly logger = new Logger(JwtStrategy.name);
 
   constructor() {
     super({
@@ -15,7 +15,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   }
 
   async validate(payload: any) {
-    this.logger.log(`Validating JWT payload: ${JSON.stringify(payload)}`);
+    // this.logger.log(`Validating JWT payload: ${JSON.stringify(payload)}`);
     return { id: payload.sub, email: payload.email, role: payload.role };
   }
 }

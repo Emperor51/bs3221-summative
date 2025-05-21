@@ -11,9 +11,11 @@ export class AuthController {
 
   @Post('login')
   async login(@Body() { email, password }: { email: string; password: string }, @Req() req) {
-    const ipAddress = req.ip || 'unknown';
-    const userAgent = req.headers['user-agent'] || 'unknown';
-    return await this.authService.login(email, password, ipAddress, userAgent);
+    if (req.ip === undefined || req.headers['user-agent'] === undefined) {
+      return new HttpException("Request is missing IP or User-Agent", 400);
+    }
+
+    return await this.authService.login(email, password, req.ip, req.headers['user-agent']);
   }
 
   @Post('refresh')

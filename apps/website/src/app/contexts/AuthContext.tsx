@@ -8,6 +8,8 @@ interface User {
   email: string;
   role: string;
   permissions: string[];
+  firstName?: string;
+  lastName?: string;
 }
 
 interface AuthContextType {
@@ -110,10 +112,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       email: decodedToken.email,
       role: decodedToken.role,
       permissions: decodedToken.permissions,
+      firstName: decodedToken.firstName,
+      lastName: decodedToken.lastName,
     };
 
     // Store tokens securely
-    localStorage.setItem('user', JSON.stringify(user));
+    // localStorage.setItem('user', JSON.stringify(user));
 
     setUser(user);
   }, []);

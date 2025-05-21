@@ -21,7 +21,7 @@ const LayoutWithMenu: React.FC<LayoutWithMenuProps> = ({ children }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const screens = useBreakpoint();
-  const { hasPermission, signOut } = useAuth();
+  const { hasPermission, signOut, user } = useAuth()
   const [collapsed, setCollapsed] = useState(false);
   const [drawerVisible, setDrawerVisible] = useState(false);
 
@@ -95,7 +95,9 @@ const LayoutWithMenu: React.FC<LayoutWithMenuProps> = ({ children }) => {
               onClick={handleMenuClick}
               style={{ marginTop: '10px', flex: 1 }}
             />
-            <div style={{ padding: '10px' }}>
+
+            <div style={{ padding: '10px', justifyItems: 'center' }}>
+              <p style={{color: "white"}}>Logged in as {user?.firstName}</p>
               <CustomButton
                 type="primary"
                 danger

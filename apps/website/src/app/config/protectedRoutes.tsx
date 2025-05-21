@@ -15,7 +15,7 @@ export interface ProtectedRouteConfig {
     label: string;
     icon: React.ReactNode;
   };
-  description: string;
+  description?: string;
 }
 
 const protectedRoutes: ProtectedRouteConfig[] = [

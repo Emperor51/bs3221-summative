@@ -37,7 +37,9 @@ export class AuthService {
     const userPermissions = user.role.permissions.map((p) => p.name) || [];
 
     // Generate access token including permissions
-    const accessPayload = { sub: user.id, email: user.email, role: user.role.role, permissions: userPermissions };
+    const accessPayload = { sub: user.id, email: user.email, role: user.role.role, permissions: userPermissions,
+      firstName: user.firstName,
+      lastName: user.lastName };
     const accessToken = this.jwtService.sign(accessPayload);
 
     // Generate refresh token without permissions
@@ -88,6 +90,8 @@ export class AuthService {
       email: user.email,
       role: user.role.role,
       permissions: userPermissions,
+      firstName: user.firstName,
+      lastName: user.lastName
     };
     const newAccessToken = this.jwtService.sign(accessPayload);
 

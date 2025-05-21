@@ -53,7 +53,7 @@ const LocationSettings: React.FC = () => {
           okText="Yes"
           cancelText="No"
         >
-          <Button type="primary" danger icon={<DeleteOutlined />}
+          <Button type="link" danger icon={<DeleteOutlined />}
                   style={{ marginRight: 10 }} />
         </Popconfirm>
         <p>{location.name.toString()}</p>
